@@ -10,13 +10,11 @@ import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import androidx.core.content.edit
 import androidx.preference.PreferenceManager
-import com.grack.nanojson.JsonParser
 import java.util.concurrent.TimeUnit
 import org.schabi.newpipe.R
 import org.schabi.newpipe.extractor.NewPipe
 import org.schabi.newpipe.extractor.ServiceList
 import org.schabi.newpipe.extractor.StreamingService
-import org.schabi.newpipe.extractor.services.peertube.PeertubeInstance
 import org.schabi.newpipe.ktx.getStringSafe
 
 object ServiceHelper {
@@ -27,10 +25,6 @@ object ServiceHelper {
     fun getIcon(serviceId: Int): Int {
         return when (serviceId) {
             0 -> R.drawable.ic_smart_display
-            1 -> R.drawable.ic_cloud
-            2 -> R.drawable.ic_placeholder_media_ccc
-            3 -> R.drawable.ic_placeholder_peertube
-            4 -> R.drawable.ic_placeholder_bandcamp
             else -> R.drawable.ic_circle
         }
     }
@@ -64,23 +58,6 @@ object ServiceHelper {
     fun getImportInstructions(serviceId: Int): Int {
         return when (serviceId) {
             0 -> R.string.import_youtube_instructions
-            1 -> R.string.import_soundcloud_instructions
-            else -> -1
-        }
-    }
-
-    /**
-     * For services that support importing from a channel url, return a hint that will
-     * be used in the EditText that the user will type in his channel url.
-     *
-     * @param serviceId service to get the hint for
-     * @return the hint's string resource or -1 if the service don't support it
-     */
-    @JvmStatic
-    @StringRes
-    fun getImportInstructionsHint(serviceId: Int): Int {
-        return when (serviceId) {
-            1 -> R.string.import_soundcloud_instructions_hint
             else -> -1
         }
     }
@@ -136,33 +113,11 @@ object ServiceHelper {
 
     @JvmStatic
     fun getCacheExpirationMillis(serviceId: Int): Long {
-        return if (serviceId == ServiceList.SoundCloud.serviceId) {
-            TimeUnit.MILLISECONDS.convert(5, TimeUnit.MINUTES)
-        } else {
-            TimeUnit.MILLISECONDS.convert(1, TimeUnit.HOURS)
-        }
-    }
-
-    fun initService(context: Context, serviceId: Int) {
-        if (serviceId == ServiceList.PeerTube.serviceId) {
-            val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context)
-            val json = sharedPreferences.getString(
-                context.getString(R.string.peertube_selected_instance_key),
-                null
-            ) ?: return
-
-            val jsonObject = runCatching { JsonParser.`object`().from(json) }
-                .getOrElse { return@initService }
-
-            ServiceList.PeerTube.instance = PeertubeInstance(
-                jsonObject.getString("url"),
-                jsonObject.getString("name")
-            )
-        }
+        return TimeUnit.MILLISECONDS.convert(1, TimeUnit.HOURS)
     }
 
     @JvmStatic
     fun initServices(context: Context) {
-        ServiceList.all().forEach { initService(context, it.serviceId) }
+        // No per-service initialization needed for YouTube-only build
     }
 }

@@ -23,7 +23,6 @@ import org.schabi.newpipe.extractor.exceptions.PaidContentException
 import org.schabi.newpipe.extractor.exceptions.PrivateContentException
 import org.schabi.newpipe.extractor.exceptions.ReCaptchaException
 import org.schabi.newpipe.extractor.exceptions.SignInConfirmNotBotException
-import org.schabi.newpipe.extractor.exceptions.SoundCloudGoPlusContentException
 import org.schabi.newpipe.extractor.exceptions.UnsupportedContentInCountryException
 import org.schabi.newpipe.extractor.exceptions.YoutubeMusicPremiumContentException
 import org.schabi.newpipe.ktx.isNetworkRelated
@@ -241,9 +240,6 @@ class ErrorInfo private constructor(
                 throwable is PrivateContentException ->
                     ErrorMessage(R.string.private_content)
 
-                throwable is SoundCloudGoPlusContentException ->
-                    ErrorMessage(R.string.soundcloud_go_plus_content)
-
                 throwable is UnsupportedContentInCountryException ->
                     ErrorMessage(R.string.unsupported_content_in_country)
 
@@ -353,7 +349,6 @@ class ErrorInfo private constructor(
                 is GeographicRestrictionException,
                 is PaidContentException,
                 is PrivateContentException,
-                is SoundCloudGoPlusContentException,
                 is UnsupportedContentInCountryException,
                 is YoutubeMusicPremiumContentException -> true
 

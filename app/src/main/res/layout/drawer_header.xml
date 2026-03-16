@@ -99,14 +99,6 @@
                     tools:text="YouTube" />
             </LinearLayout>
 
-            <ImageView
-                android:id="@+id/drawer_arrow"
-                android:layout_width="24dp"
-                android:layout_height="24dp"
-                android:layout_marginStart="4dp"
-                android:src="@drawable/ic_arrow_drop_down"
-                app:tint="@color/drawer_header_font_color"
-                tools:ignore="ContentDescription" />
         </LinearLayout>
     </LinearLayout>
 
