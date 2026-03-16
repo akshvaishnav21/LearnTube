@@ -551,6 +551,9 @@ public class PlaylistFragment extends BaseListInfoFragment<StreamInfoItem, Playl
                         headerBinding.playlistWatchedCount.setText(
                                 getString(R.string.playlist_watched_count_text,
                                         (long) watchedCount, (long) total));
+                        headerBinding.playlistCompletedBadge.setVisibility(
+                                total > 0 && watchedCount >= total
+                                        ? View.VISIBLE : View.GONE);
                     }
                 }, e -> { /* silently ignore */ }));
     }

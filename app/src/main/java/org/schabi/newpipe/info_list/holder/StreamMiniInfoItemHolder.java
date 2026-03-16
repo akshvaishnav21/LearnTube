@@ -5,6 +5,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 
 import org.schabi.newpipe.R;
@@ -28,6 +29,8 @@ public class StreamMiniInfoItemHolder extends InfoItemHolder {
     public final TextView itemUploaderView;
     public final TextView itemDurationView;
     private final AnimatedProgressBar itemProgressView;
+    @Nullable
+    private final ImageView itemWatchedView;
 
     StreamMiniInfoItemHolder(final InfoItemBuilder infoItemBuilder, final int layoutId,
                              final ViewGroup parent) {
@@ -38,6 +41,7 @@ public class StreamMiniInfoItemHolder extends InfoItemHolder {
         itemUploaderView = itemView.findViewById(R.id.itemUploaderView);
         itemDurationView = itemView.findViewById(R.id.itemDurationView);
         itemProgressView = itemView.findViewById(R.id.itemProgressView);
+        itemWatchedView = itemView.findViewById(R.id.itemWatchedView);
     }
 
     public StreamMiniInfoItemHolder(final InfoItemBuilder infoItemBuilder, final ViewGroup parent) {
@@ -74,6 +78,11 @@ public class StreamMiniInfoItemHolder extends InfoItemHolder {
                         .toSeconds(state2.getProgressMillis()));
             } else {
                 itemProgressView.setVisibility(View.GONE);
+            }
+            if (itemWatchedView != null) {
+                itemWatchedView.setVisibility(
+                        state2 != null && state2.isFinished(item.getDuration())
+                                ? View.VISIBLE : View.GONE);
             }
         } else if (StreamTypeUtil.isLiveStream(item.getStreamType())) {
             itemDurationView.setText(R.string.duration_live);
@@ -135,6 +144,13 @@ public class StreamMiniInfoItemHolder extends InfoItemHolder {
             }
         } else if (itemProgressView.getVisibility() == View.VISIBLE) {
             ViewUtils.animate(itemProgressView, false, 500);
+        }
+        if (itemWatchedView != null) {
+            itemWatchedView.setVisibility(
+                    state != null && item.getDuration() > 0
+                            && !StreamTypeUtil.isLiveStream(item.getStreamType())
+                            && state.isFinished(item.getDuration())
+                            ? View.VISIBLE : View.GONE);
         }
     }
 

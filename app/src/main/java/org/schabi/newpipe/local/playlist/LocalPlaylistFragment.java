@@ -863,6 +863,9 @@ public class LocalPlaylistFragment extends BaseLocalListFragment<List<PlaylistSt
             headerBinding.playlistWatchedCount.setText(
                     activity.getString(R.string.playlist_watched_count_text,
                             watchedCount, streamCount));
+            headerBinding.playlistCompletedBadge.setVisibility(
+                    streamCount > 0 && watchedCount >= streamCount
+                            ? View.VISIBLE : View.GONE);
         }
     }
 

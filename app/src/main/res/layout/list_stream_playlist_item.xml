@@ -93,4 +93,16 @@
         android:layout_marginTop="-2dp"
         android:progressDrawable="?progress_horizontal_drawable" />
 
+    <ImageView
+        android:id="@+id/itemWatchedView"
+        android:layout_width="18dp"
+        android:layout_height="18dp"
+        android:layout_alignTop="@id/itemThumbnailView"
+        android:layout_alignEnd="@id/itemThumbnailView"
+        android:layout_marginTop="2dp"
+        android:layout_marginEnd="2dp"
+        android:src="@drawable/ic_watched_badge"
+        android:visibility="gone"
+        tools:visibility="visible" />
+
 </RelativeLayout>
