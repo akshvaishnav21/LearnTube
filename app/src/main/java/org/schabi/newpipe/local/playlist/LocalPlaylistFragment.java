@@ -44,6 +44,7 @@ import org.schabi.newpipe.database.history.model.StreamHistoryEntry;
 import org.schabi.newpipe.database.playlist.PlaylistStreamEntry;
 import org.schabi.newpipe.database.playlist.model.PlaylistEntity;
 import org.schabi.newpipe.database.stream.model.StreamEntity;
+import org.schabi.newpipe.database.stream.model.StreamStateEntity;
 import org.schabi.newpipe.databinding.DialogEditTextBinding;
 import org.schabi.newpipe.databinding.LocalPlaylistHeaderBinding;
 import org.schabi.newpipe.databinding.PlaylistControlBinding;
@@ -844,6 +845,24 @@ public class LocalPlaylistFragment extends BaseLocalListFragment<List<PlaylistSt
                             Localization.getDurationString(playlistOverallDurationSeconds,
                                                             true, true))
             );
+
+            final long watchedCount = itemsList.stream()
+                    .filter(PlaylistStreamEntry.class::isInstance)
+                    .map(PlaylistStreamEntry.class::cast)
+                    .filter(entry -> {
+                        final long durationSec = entry.getStreamEntity().getDuration();
+                        final long progressMs = entry.getProgressMillis();
+                        return durationSec > 0
+                                && progressMs >= durationSec * 1000
+                                        - StreamStateEntity.PLAYBACK_FINISHED_END_MILLISECONDS
+                                && progressMs >= durationSec * 1000 * 3 / 4;
+                    })
+                    .count();
+            headerBinding.playlistWatchedProgress.setProgress(
+                    streamCount > 0 ? (int) (watchedCount * 100 / streamCount) : 0);
+            headerBinding.playlistWatchedCount.setText(
+                    activity.getString(R.string.playlist_watched_count_text,
+                            watchedCount, streamCount));
         }
     }
 

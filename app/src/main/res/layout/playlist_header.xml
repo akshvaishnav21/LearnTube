@@ -102,10 +102,33 @@
         android:layout_marginBottom="6dp"
         android:textColor="?attr/colorPrimary" />
 
+    <org.schabi.newpipe.views.NewPipeTextView
+        android:id="@+id/playlist_watched_count"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/playlist_description_read_more"
+        android:paddingHorizontal="@dimen/video_item_search_padding"
+        android:paddingTop="4dp"
+        android:paddingBottom="2dp"
+        android:textSize="@dimen/playlist_detail_subtext_size"
+        tools:text="2 of 5 watched" />
+
+    <ProgressBar
+        android:id="@+id/playlist_watched_progress"
+        style="?android:attr/progressBarStyleHorizontal"
+        android:layout_width="match_parent"
+        android:layout_height="4dp"
+        android:layout_below="@id/playlist_watched_count"
+        android:layout_marginHorizontal="@dimen/video_item_search_padding"
+        android:layout_marginBottom="4dp"
+        android:progressTint="?android:attr/textColorPrimary"
+        android:progressBackgroundTint="?android:attr/textColorSecondary"
+        android:max="100" />
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@id/playlist_description_read_more">
+        android:layout_below="@id/playlist_watched_progress">
 
         <include
             android:id="@+id/playlist_control"

@@ -29,6 +29,7 @@ import org.schabi.newpipe.NewPipeDatabase;
 import org.schabi.newpipe.R;
 import org.schabi.newpipe.database.playlist.model.PlaylistRemoteEntity;
 import org.schabi.newpipe.database.stream.model.StreamEntity;
+import org.schabi.newpipe.database.stream.model.StreamStateEntity;
 import org.schabi.newpipe.databinding.PlaylistControlBinding;
 import org.schabi.newpipe.databinding.PlaylistHeaderBinding;
 import org.schabi.newpipe.error.ErrorInfo;
@@ -58,6 +59,7 @@ import org.schabi.newpipe.util.text.TextEllipsizer;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
@@ -68,6 +70,7 @@ import io.reactivex.rxjava3.core.Flowable;
 import io.reactivex.rxjava3.core.Single;
 import io.reactivex.rxjava3.disposables.CompositeDisposable;
 import io.reactivex.rxjava3.disposables.Disposable;
+import io.reactivex.rxjava3.schedulers.Schedulers;
 
 public class PlaylistFragment extends BaseListInfoFragment<StreamInfoItem, PlaylistInfo>
         implements PlaylistControlViewHolder {
@@ -503,7 +506,53 @@ public class PlaylistFragment extends BaseListInfoFragment<StreamInfoItem, Playl
                     Localization.getDurationString(playlistOverallDurationSeconds,
                             isDurationComplete, true))
             );
+            updateWatchedProgress();
         }
+    }
+
+    private void updateWatchedProgress() {
+        final List<String> urls = infoListAdapter.getItemsList().stream()
+                .filter(StreamInfoItem.class::isInstance)
+                .map(StreamInfoItem.class::cast)
+                .map(StreamInfoItem::getUrl)
+                .collect(Collectors.toList());
+
+        if (urls.isEmpty() || headerBinding == null) {
+            return;
+        }
+
+        disposables.add(
+            NewPipeDatabase.getInstance(requireContext())
+                .streamHistoryDAO()
+                .getStatistics()
+                .take(1)
+                .map(stats -> {
+                    final long finishedThresholdMs =
+                            StreamStateEntity.PLAYBACK_FINISHED_END_MILLISECONDS;
+                    final Set<String> finishedUrls = stats.stream()
+                            .filter(e -> {
+                                final long dur = e.getStreamEntity().getDuration();
+                                final long prog = e.getProgressMillis();
+                                return dur > 0
+                                        && prog >= dur * 1000 - finishedThresholdMs
+                                        && prog >= dur * 1000 * 3 / 4;
+                            })
+                            .map(e -> e.getStreamEntity().getUrl())
+                            .collect(Collectors.toSet());
+                    return (int) urls.stream().filter(finishedUrls::contains).count();
+                })
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(watchedCount -> {
+                    if (headerBinding != null) {
+                        final int total = urls.size();
+                        headerBinding.playlistWatchedProgress.setProgress(
+                                total > 0 ? watchedCount * 100 / total : 0);
+                        headerBinding.playlistWatchedCount.setText(
+                                getString(R.string.playlist_watched_count_text,
+                                        (long) watchedCount, (long) total));
+                    }
+                }, e -> { /* silently ignore */ }));
     }
 
 }
