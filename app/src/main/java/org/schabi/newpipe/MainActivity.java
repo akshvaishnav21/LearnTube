@@ -311,7 +311,7 @@ public class MainActivity extends AppCompatActivity {
             for (int i = 0; i < kiosks.size(); i++) {
                 if (!"live".equals(kiosks.get(i))) {
                     drawerLayoutBinding.navigation.getMenu()
-                            .add(R.id.menu_kiosks_group, i, 1,
+                            .add(R.id.menu_kiosks_group, i, ORDER,
                                     KioskTranslator.getTranslatedKioskName(kiosks.get(i), this))
                             .setIcon(KioskTranslator.getKioskIcon(kiosks.get(i)));
                 }
@@ -322,7 +322,7 @@ public class MainActivity extends AppCompatActivity {
         final int liveIdx = kiosks.indexOf("live");
         if (liveIdx >= 0) {
             drawerLayoutBinding.navigation.getMenu()
-                    .add(R.id.menu_kiosks_group, liveIdx, 2,
+                    .add(R.id.menu_kiosks_group, liveIdx, ORDER,
                             KioskTranslator.getTranslatedKioskName("live", this))
                     .setIcon(KioskTranslator.getKioskIcon("live"));
         }
@@ -337,13 +337,16 @@ public class MainActivity extends AppCompatActivity {
         } else if (groupId == R.id.menu_kiosks_group) {
             if (item.getItemId() == ITEM_ID_TRENDING_GROUP) {
                 trendingGroupExpanded = !trendingGroupExpanded;
-                try {
-                    drawerLayoutBinding.navigation.getMenu()
-                            .removeGroup(R.id.menu_kiosks_group);
-                    addKioskMenuItems();
-                } catch (final Exception e) {
-                    ErrorUtil.showUiErrorSnackbar(this, "Toggling trending group", e);
-                }
+                // Post so the NavigationView finishes its selection callback before we
+                // modify the menu — otherwise the view doesn't refresh reliably.
+                drawerLayoutBinding.navigation.post(() -> {
+                    drawerLayoutBinding.navigation.getMenu().clear();
+                    try {
+                        addDrawerMenuForCurrentService();
+                    } catch (final Exception e) {
+                        ErrorUtil.showUiErrorSnackbar(this, "Toggling trending group", e);
+                    }
+                });
                 return true; // keep drawer open
             }
             try {

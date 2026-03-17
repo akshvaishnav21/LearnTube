@@ -38,6 +38,10 @@
     <string name="tab_bookmarks_short">Learning</string>
     <string name="playlist_watched_count_text">%1$d of %2$d watched</string>
     <string name="playlist_completed_text">&#10003; Course Completed!</string>
+    <string name="playlist_continue_watching">Continue watching</string>
+    <string name="playlist_next_up_badge">&#9654; Next</string>
+    <string name="playlist_note_dialog_title">Video note</string>
+    <string name="playlist_note_hint">Add a note for this video…</string>
     <string name="trending_videos_group">Trending videos</string>
     <string name="tab_choose">Choose Tab</string>
     <string name="controls_background_title">Background</string>

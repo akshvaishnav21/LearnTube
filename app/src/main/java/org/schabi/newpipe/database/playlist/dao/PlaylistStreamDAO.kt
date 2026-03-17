@@ -10,6 +10,7 @@ import androidx.room.Dao
 import androidx.room.Query
 import androidx.room.RewriteQueriesToDropUnusedColumns
 import androidx.room.Transaction
+import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Flowable
 import org.schabi.newpipe.database.BasicDAO
 import org.schabi.newpipe.database.playlist.PlaylistDuplicatesEntry
@@ -37,6 +38,9 @@ interface PlaylistStreamDAO : BasicDAO<PlaylistStreamEntity> {
     @Query("SELECT COALESCE(MAX(join_index), -1) FROM playlist_stream_join WHERE playlist_id = :playlistId")
     fun getMaximumIndexOf(playlistId: Long): Flowable<Int>
 
+    @Query("UPDATE playlist_stream_join SET notes = :notes WHERE playlist_id = :playlistId AND stream_id = :streamId")
+    fun updateNote(playlistId: Long, streamId: Long, notes: String?): Completable
+
     @Query(
         """
         SELECT CASE WHEN COUNT(*) != 0 then stream_id ELSE $DEFAULT_THUMBNAIL_ID END
@@ -57,7 +61,7 @@ interface PlaylistStreamDAO : BasicDAO<PlaylistStreamEntity> {
         """
         SELECT * FROM streams
 
-        INNER JOIN (SELECT stream_id, join_index FROM playlist_stream_join WHERE playlist_id = :playlistId)
+        INNER JOIN (SELECT stream_id, join_index, notes FROM playlist_stream_join WHERE playlist_id = :playlistId)
         ON uid = stream_id
 
         LEFT JOIN (SELECT stream_id AS stream_id_alias, progress_time FROM stream_state )
@@ -96,7 +100,7 @@ interface PlaylistStreamDAO : BasicDAO<PlaylistStreamEntity> {
         """
         SELECT *, MIN(join_index) FROM streams
 
-        INNER JOIN (SELECT stream_id, join_index FROM playlist_stream_join WHERE playlist_id = :playlistId)
+        INNER JOIN (SELECT stream_id, join_index, notes FROM playlist_stream_join WHERE playlist_id = :playlistId)
         ON uid = stream_id
 
         LEFT JOIN (SELECT stream_id AS stream_id_alias, progress_time FROM stream_state )

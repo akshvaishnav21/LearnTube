@@ -105,4 +105,35 @@
         android:visibility="gone"
         tools:visibility="visible" />
 
+    <org.schabi.newpipe.views.NewPipeTextView
+        android:id="@+id/itemNextUpBadge"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignTop="@id/itemThumbnailView"
+        android:layout_alignStart="@id/itemThumbnailView"
+        android:layout_marginTop="2dp"
+        android:layout_marginStart="2dp"
+        android:background="#4CAF50"
+        android:paddingHorizontal="4dp"
+        android:paddingVertical="2dp"
+        android:text="@string/playlist_next_up_badge"
+        android:textColor="#FFFFFF"
+        android:textSize="9sp"
+        android:visibility="gone"
+        tools:visibility="visible" />
+
+    <org.schabi.newpipe.views.NewPipeTextView
+        android:id="@+id/itemNoteView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/itemAdditionalDetails"
+        android:layout_toEndOf="@id/itemThumbnailView"
+        android:layout_toStartOf="@id/itemHandle"
+        android:ellipsize="end"
+        android:maxLines="1"
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        android:textStyle="italic"
+        android:visibility="gone"
+        tools:text="My note about this video" />
+
 </RelativeLayout>

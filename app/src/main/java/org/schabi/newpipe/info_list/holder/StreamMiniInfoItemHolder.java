@@ -24,6 +24,9 @@ import org.schabi.newpipe.views.AnimatedProgressBar;
 import java.util.concurrent.TimeUnit;
 
 public class StreamMiniInfoItemHolder extends InfoItemHolder {
+    /** URL of the next-up (first unwatched) item; set by PlaylistFragment. */
+    public static String sNextUpUrl = null;
+
     public final ImageView itemThumbnailView;
     public final TextView itemVideoTitleView;
     public final TextView itemUploaderView;
@@ -31,6 +34,8 @@ public class StreamMiniInfoItemHolder extends InfoItemHolder {
     private final AnimatedProgressBar itemProgressView;
     @Nullable
     private final ImageView itemWatchedView;
+    @Nullable
+    private final TextView itemNextUpBadge;
 
     StreamMiniInfoItemHolder(final InfoItemBuilder infoItemBuilder, final int layoutId,
                              final ViewGroup parent) {
@@ -42,6 +47,7 @@ public class StreamMiniInfoItemHolder extends InfoItemHolder {
         itemDurationView = itemView.findViewById(R.id.itemDurationView);
         itemProgressView = itemView.findViewById(R.id.itemProgressView);
         itemWatchedView = itemView.findViewById(R.id.itemWatchedView);
+        itemNextUpBadge = itemView.findViewById(R.id.itemNextUpBadge);
     }
 
     public StreamMiniInfoItemHolder(final InfoItemBuilder infoItemBuilder, final ViewGroup parent) {
@@ -97,6 +103,12 @@ public class StreamMiniInfoItemHolder extends InfoItemHolder {
 
         // Default thumbnail is shown on error, while loading and if the url is empty
         CoilHelper.INSTANCE.loadThumbnail(itemThumbnailView, item.getThumbnails());
+
+        if (itemNextUpBadge != null) {
+            itemNextUpBadge.setVisibility(
+                    item.getUrl() != null && item.getUrl().equals(sNextUpUrl)
+                            ? View.VISIBLE : View.GONE);
+        }
 
         itemView.setOnClickListener(view -> {
             if (itemBuilder.getOnStreamSelectedListener() != null) {

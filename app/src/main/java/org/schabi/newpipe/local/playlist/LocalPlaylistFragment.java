@@ -24,6 +24,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.LinearLayout.LayoutParams;
 import android.widget.Toast;
@@ -55,6 +56,8 @@ import org.schabi.newpipe.fragments.MainFragment;
 import org.schabi.newpipe.fragments.list.playlist.PlaylistControlViewHolder;
 import org.schabi.newpipe.info_list.dialog.InfoItemDialog;
 import org.schabi.newpipe.info_list.dialog.StreamDialogDefaultEntry;
+import org.schabi.newpipe.info_list.dialog.StreamDialogEntry;
+import org.schabi.newpipe.local.holder.LocalPlaylistStreamItemHolder;
 import org.schabi.newpipe.local.BaseLocalListFragment;
 import org.schabi.newpipe.local.history.HistoryRecordManager;
 import org.schabi.newpipe.player.playqueue.PlayQueue;
@@ -802,6 +805,9 @@ public class LocalPlaylistFragment extends BaseLocalListFragment<List<PlaylistSt
                     StreamDialogDefaultEntry.SET_AS_PLAYLIST_THUMBNAIL,
                     StreamDialogDefaultEntry.DELETE
             );
+            dialogBuilder.addEntry(new StreamDialogEntry(
+                    R.string.playlist_note_dialog_title,
+                    (f, i) -> showNoteEditDialog(item)));
 
             // set custom actions
             // all entries modified below have already been added within the builder
@@ -825,6 +831,39 @@ public class LocalPlaylistFragment extends BaseLocalListFragment<List<PlaylistSt
         }
     }
 
+    private void showNoteEditDialog(final PlaylistStreamEntry item) {
+        final EditText editText = new EditText(requireContext());
+        editText.setInputType(InputType.TYPE_CLASS_TEXT
+                | InputType.TYPE_TEXT_FLAG_MULTI_LINE);
+        editText.setMaxLines(4);
+        final String existingNote = item.getNotes();
+        if (existingNote != null) {
+            editText.setText(existingNote);
+            editText.setSelection(existingNote.length());
+        } else {
+            editText.setHint(R.string.playlist_note_hint);
+        }
+        final int padding = (int) (16 * requireContext().getResources()
+                .getDisplayMetrics().density);
+        editText.setPadding(padding, padding, padding, padding);
+        new AlertDialog.Builder(requireContext())
+                .setTitle(R.string.playlist_note_dialog_title)
+                .setView(editText)
+                .setPositiveButton(R.string.ok, (d, w) -> {
+                    final String note = editText.getText().toString().trim();
+                    disposables.add(playlistManager
+                            .updateStreamNote(playlistId, item.getStreamId(),
+                                    note.isEmpty() ? null : note)
+                            .observeOn(AndroidSchedulers.mainThread())
+                            .subscribe(
+                                    () -> setStreamCountAndOverallDuration(
+                                            itemListAdapter.getItemsList()),
+                                    e -> showUiErrorSnackbar(this, "Saving note", e)));
+                })
+                .setNegativeButton(R.string.cancel, null)
+                .show();
+    }
+
     private void setInitialData(final long pid, final String title) {
         this.playlistId = pid;
         this.name = !TextUtils.isEmpty(title) ? title : "";
@@ -846,18 +885,33 @@ public class LocalPlaylistFragment extends BaseLocalListFragment<List<PlaylistSt
                                                             true, true))
             );
 
-            final long watchedCount = itemsList.stream()
+            long watchedCount = 0;
+            long timeRemainingSeconds = 0;
+            int firstUnwatchedIdx = -1;
+            long nextUpStreamId = -1L;
+            final List<PlaylistStreamEntry> streams = itemsList.stream()
                     .filter(PlaylistStreamEntry.class::isInstance)
                     .map(PlaylistStreamEntry.class::cast)
-                    .filter(entry -> {
-                        final long durationSec = entry.getStreamEntity().getDuration();
-                        final long progressMs = entry.getProgressMillis();
-                        return durationSec > 0
-                                && progressMs >= durationSec * 1000
-                                        - StreamStateEntity.PLAYBACK_FINISHED_END_MILLISECONDS
-                                && progressMs >= durationSec * 1000 * 3 / 4;
-                    })
-                    .count();
+                    .collect(Collectors.toList());
+            for (int i = 0; i < streams.size(); i++) {
+                final PlaylistStreamEntry entry = streams.get(i);
+                final long durationSec = entry.getStreamEntity().getDuration();
+                final long progressMs = entry.getProgressMillis();
+                final boolean finished = durationSec > 0
+                        && progressMs >= durationSec * 1000
+                                - StreamStateEntity.PLAYBACK_FINISHED_END_MILLISECONDS
+                        && progressMs >= durationSec * 1000 * 3 / 4;
+                if (finished) {
+                    watchedCount++;
+                } else {
+                    timeRemainingSeconds += durationSec;
+                    if (firstUnwatchedIdx < 0) {
+                        firstUnwatchedIdx = i;
+                        nextUpStreamId = entry.getStreamId();
+                    }
+                }
+            }
+            LocalPlaylistStreamItemHolder.sNextUpStreamId = nextUpStreamId;
             headerBinding.playlistWatchedProgress.setProgress(
                     streamCount > 0 ? (int) (watchedCount * 100 / streamCount) : 0);
             headerBinding.playlistWatchedCount.setText(
@@ -866,6 +920,17 @@ public class LocalPlaylistFragment extends BaseLocalListFragment<List<PlaylistSt
             headerBinding.playlistCompletedBadge.setVisibility(
                     streamCount > 0 && watchedCount >= streamCount
                             ? View.VISIBLE : View.GONE);
+            headerBinding.playlistTimeRemaining.setVisibility(
+                    timeRemainingSeconds > 0 && watchedCount < streamCount
+                            ? View.VISIBLE : View.GONE);
+            headerBinding.playlistTimeRemaining.setText(
+                    Localization.getDurationString(timeRemainingSeconds) + " remaining");
+            final boolean showContinue = watchedCount > 0 && watchedCount < streamCount;
+            headerBinding.playlistContinueButton.setVisibility(
+                    showContinue ? View.VISIBLE : View.GONE);
+            final int continueIdx = firstUnwatchedIdx >= 0 ? firstUnwatchedIdx : 0;
+            headerBinding.playlistContinueButton.setOnClickListener(v ->
+                    NavigationHelper.playOnMainPlayer(activity, getPlayQueue(continueIdx)));
         }
     }
 

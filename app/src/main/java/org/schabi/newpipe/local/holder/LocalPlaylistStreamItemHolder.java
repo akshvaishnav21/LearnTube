@@ -24,12 +24,17 @@ import java.time.format.DateTimeFormatter;
 import java.util.concurrent.TimeUnit;
 
 public class LocalPlaylistStreamItemHolder extends LocalItemHolder {
+    /** Stream ID of the next-up (first unwatched) item; set by LocalPlaylistFragment. */
+    public static long sNextUpStreamId = -1L;
+
     public final ImageView itemThumbnailView;
     public final TextView itemVideoTitleView;
     private final TextView itemAdditionalDetailsView;
     public final TextView itemDurationView;
     private final View itemHandleView;
     private final AnimatedProgressBar itemProgressView;
+    private final TextView itemNextUpBadge;
+    private final TextView itemNoteView;
 
     LocalPlaylistStreamItemHolder(final LocalItemBuilder infoItemBuilder, final int layoutId,
                                   final ViewGroup parent) {
@@ -41,6 +46,8 @@ public class LocalPlaylistStreamItemHolder extends LocalItemHolder {
         itemDurationView = itemView.findViewById(R.id.itemDurationView);
         itemHandleView = itemView.findViewById(R.id.itemHandle);
         itemProgressView = itemView.findViewById(R.id.itemProgressView);
+        itemNextUpBadge = itemView.findViewById(R.id.itemNextUpBadge);
+        itemNoteView = itemView.findViewById(R.id.itemNoteView);
     }
 
     public LocalPlaylistStreamItemHolder(final LocalItemBuilder infoItemBuilder,
@@ -80,6 +87,19 @@ public class LocalPlaylistStreamItemHolder extends LocalItemHolder {
             }
         } else {
             itemDurationView.setVisibility(View.GONE);
+        }
+
+        // Next-up badge: shown on the first unwatched item
+        itemNextUpBadge.setVisibility(
+                item.getStreamId() == sNextUpStreamId ? View.VISIBLE : View.GONE);
+
+        // Per-video note
+        final String note = item.getNotes();
+        if (note != null && !note.isEmpty()) {
+            itemNoteView.setText(note);
+            itemNoteView.setVisibility(View.VISIBLE);
+        } else {
+            itemNoteView.setVisibility(View.GONE);
         }
 
         // Default thumbnail is shown on error, while loading and if the url is empty

@@ -26,7 +26,10 @@ data class PlaylistStreamEntry(
     val streamId: Long,
 
     @ColumnInfo(name = PlaylistStreamEntity.JOIN_INDEX)
-    val joinIndex: Int
+    val joinIndex: Int,
+
+    @ColumnInfo(name = PlaylistStreamEntity.JOIN_NOTES)
+    val notes: String? = null
 ) : LocalItem {
 
     override val localItemType: LocalItem.LocalItemType

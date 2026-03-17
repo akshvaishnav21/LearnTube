@@ -7,7 +7,9 @@ import static org.schabi.newpipe.util.ServiceHelper.getServiceById;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.text.InputType;
 import android.text.TextUtils;
+import android.widget.EditText;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -18,6 +20,7 @@ import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.content.res.AppCompatResources;
 
 import com.google.android.material.shape.CornerFamily;
@@ -43,8 +46,11 @@ import org.schabi.newpipe.extractor.services.youtube.YoutubeParsingHelper;
 import org.schabi.newpipe.extractor.stream.Description;
 import org.schabi.newpipe.extractor.stream.StreamInfoItem;
 import org.schabi.newpipe.fragments.list.BaseListInfoFragment;
+import org.schabi.newpipe.database.stream.dao.StreamNotesDAO;
 import org.schabi.newpipe.info_list.dialog.InfoItemDialog;
 import org.schabi.newpipe.info_list.dialog.StreamDialogDefaultEntry;
+import org.schabi.newpipe.info_list.dialog.StreamDialogEntry;
+import org.schabi.newpipe.info_list.holder.StreamMiniInfoItemHolder;
 import org.schabi.newpipe.local.dialog.PlaylistDialog;
 import org.schabi.newpipe.local.playlist.RemotePlaylistManager;
 import org.schabi.newpipe.player.playqueue.PlayQueue;
@@ -158,16 +164,59 @@ public class PlaylistFragment extends BaseListInfoFragment<StreamInfoItem, Playl
             final InfoItemDialog.Builder dialogBuilder =
                     new InfoItemDialog.Builder(getActivity(), context, this, item);
 
+            final StreamNotesDAO notesDao =
+                    NewPipeDatabase.getInstance(requireContext()).streamNotesDAO();
             dialogBuilder
                     .setAction(
                             StreamDialogDefaultEntry.START_HERE_ON_BACKGROUND,
                             (f, infoItem) -> NavigationHelper.playOnBackgroundPlayer(
                                     context, getPlayQueueStartingAt(infoItem), true))
+                    .addEntry(new StreamDialogEntry(R.string.playlist_note_dialog_title,
+                            (f, infoItem) -> disposables.add(
+                                    Single.fromCallable(() -> {
+                                        final long uid = NewPipeDatabase
+                                                .getInstance(requireContext())
+                                                .streamDAO()
+                                                .upsertAll(List.of(new StreamEntity(infoItem)))
+                                                .get(0);
+                                        return new Object[]{uid,
+                                                notesDao.getNote(uid).blockingGet()};
+                                    })
+                                    .subscribeOn(Schedulers.io())
+                                    .observeOn(AndroidSchedulers.mainThread())
+                                    .subscribe(
+                                            pair -> showRemoteNoteDialog(notesDao,
+                                                    (Long) pair[0], (String) pair[1]),
+                                            throwable -> { /* ignore */ }))))
                     .create()
                     .show();
         } catch (final IllegalArgumentException e) {
             InfoItemDialog.Builder.reportErrorDuringInitialization(e, item);
         }
+    }
+
+    private void showRemoteNoteDialog(final StreamNotesDAO notesDao, final long streamUid,
+                                      @Nullable final String existingNote) {
+        final EditText editText = new EditText(requireContext());
+        editText.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_MULTI_LINE);
+        editText.setMaxLines(4);
+        editText.setHint(R.string.playlist_note_hint);
+        if (existingNote != null) {
+            editText.setText(existingNote);
+            editText.setSelection(existingNote.length());
+        }
+        new AlertDialog.Builder(requireContext())
+                .setTitle(R.string.playlist_note_dialog_title)
+                .setView(editText)
+                .setPositiveButton(R.string.ok, (d, w) -> {
+                    final String note = editText.getText().toString().trim();
+                    disposables.add(notesDao
+                            .setNote(streamUid, note.isEmpty() ? null : note)
+                            .subscribeOn(Schedulers.io())
+                            .subscribe());
+                })
+                .setNegativeButton(R.string.cancel, null)
+                .show();
     }
 
     @Override
@@ -511,9 +560,11 @@ public class PlaylistFragment extends BaseListInfoFragment<StreamInfoItem, Playl
     }
 
     private void updateWatchedProgress() {
-        final List<String> urls = infoListAdapter.getItemsList().stream()
+        final List<StreamInfoItem> streamItems = infoListAdapter.getItemsList().stream()
                 .filter(StreamInfoItem.class::isInstance)
                 .map(StreamInfoItem.class::cast)
+                .collect(Collectors.toList());
+        final List<String> urls = streamItems.stream()
                 .map(StreamInfoItem::getUrl)
                 .collect(Collectors.toList());
 
@@ -539,12 +590,27 @@ public class PlaylistFragment extends BaseListInfoFragment<StreamInfoItem, Playl
                             })
                             .map(e -> e.getStreamEntity().getUrl())
                             .collect(Collectors.toSet());
-                    return (int) urls.stream().filter(finishedUrls::contains).count();
+                    final long watchedCount =
+                            urls.stream().filter(finishedUrls::contains).count();
+                    long timeRemainingSeconds = 0;
+                    int firstUnwatchedIdx = -1;
+                    for (int i = 0; i < streamItems.size(); i++) {
+                        if (!finishedUrls.contains(streamItems.get(i).getUrl())) {
+                            if (firstUnwatchedIdx < 0) {
+                                firstUnwatchedIdx = i;
+                            }
+                            timeRemainingSeconds += streamItems.get(i).getDuration();
+                        }
+                    }
+                    return new long[]{watchedCount, timeRemainingSeconds, firstUnwatchedIdx};
                 })
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(watchedCount -> {
+                .subscribe(result -> {
                     if (headerBinding != null) {
+                        final int watchedCount = (int) result[0];
+                        final long timeRemainingSeconds = result[1];
+                        final int firstUnwatchedIdx = (int) result[2];
                         final int total = urls.size();
                         headerBinding.playlistWatchedProgress.setProgress(
                                 total > 0 ? watchedCount * 100 / total : 0);
@@ -554,6 +620,24 @@ public class PlaylistFragment extends BaseListInfoFragment<StreamInfoItem, Playl
                         headerBinding.playlistCompletedBadge.setVisibility(
                                 total > 0 && watchedCount >= total
                                         ? View.VISIBLE : View.GONE);
+                        headerBinding.playlistTimeRemaining.setVisibility(
+                                timeRemainingSeconds > 0 && watchedCount < total
+                                        ? View.VISIBLE : View.GONE);
+                        headerBinding.playlistTimeRemaining.setText(
+                                Localization.getDurationString(timeRemainingSeconds)
+                                        + " remaining");
+                        final boolean showContinue =
+                                watchedCount > 0 && watchedCount < total;
+                        headerBinding.playlistContinueButton.setVisibility(
+                                showContinue ? View.VISIBLE : View.GONE);
+                        final int continueIdx =
+                                firstUnwatchedIdx >= 0 ? firstUnwatchedIdx : 0;
+                        headerBinding.playlistContinueButton.setOnClickListener(v ->
+                                NavigationHelper.playOnMainPlayer(
+                                        activity, getPlayQueue(continueIdx)));
+                        StreamMiniInfoItemHolder.sNextUpUrl = firstUnwatchedIdx >= 0
+                                ? streamItems.get(firstUnwatchedIdx).getUrl() : null;
+                        infoListAdapter.notifyDataSetChanged();
                     }
                 }, e -> { /* silently ignore */ }));
     }

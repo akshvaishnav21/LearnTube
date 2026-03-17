@@ -53,7 +53,10 @@ data class PlaylistStreamEntity(
     val streamUid: Long,
 
     @ColumnInfo(name = JOIN_INDEX)
-    val index: Int
+    val index: Int,
+
+    @ColumnInfo(name = JOIN_NOTES)
+    val notes: String? = null
 ) : LocalItem {
 
     override val localItemType: LocalItem.LocalItemType
@@ -64,5 +67,6 @@ data class PlaylistStreamEntity(
         const val JOIN_PLAYLIST_ID = "playlist_id"
         const val JOIN_STREAM_ID = "stream_id"
         const val JOIN_INDEX = "join_index"
+        const val JOIN_NOTES = "notes"
     }
 }

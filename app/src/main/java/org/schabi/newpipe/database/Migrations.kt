@@ -29,6 +29,8 @@ object Migrations {
     const val DB_VER_7 = 7
     const val DB_VER_8 = 8
     const val DB_VER_9 = 9
+    const val DB_VER_10 = 10
+    const val DB_VER_11 = 11
 
     private val TAG = Migrations::class.java.getName()
     private val isDebug = MainActivity.DEBUG
@@ -347,5 +349,16 @@ object Migrations {
         } finally {
             db.endTransaction()
         }
+    }
+
+    val MIGRATION_9_10 = Migration(DB_VER_9, DB_VER_10) { db ->
+        db.execSQL("ALTER TABLE playlist_stream_join ADD COLUMN notes TEXT")
+    }
+
+    val MIGRATION_10_11 = Migration(DB_VER_10, DB_VER_11) { db ->
+        db.execSQL(
+            "CREATE TABLE IF NOT EXISTS `stream_notes` " +
+                "(`stream_uid` INTEGER NOT NULL, `note` TEXT, PRIMARY KEY(`stream_uid`))"
+        )
     }
 }

@@ -74,15 +74,21 @@ public class LocalPlaylistManager {
 
         for (int index = 0; index < streamIds.size(); index++) {
             joinEntities.add(new PlaylistStreamEntity(playlistId, streamIds.get(index),
-                    index + indexOffset));
+                    index + indexOffset, null));
         }
         return playlistStreamTable.insertAll(joinEntities);
+    }
+
+    public Completable updateStreamNote(final long playlistId, final long streamId,
+                                        @Nullable final String notes) {
+        return playlistStreamTable.updateNote(playlistId, streamId, notes)
+                .subscribeOn(Schedulers.io());
     }
 
     public Completable updateJoin(final long playlistId, final List<Long> streamIds) {
         final List<PlaylistStreamEntity> joinEntities = new ArrayList<>(streamIds.size());
         for (int i = 0; i < streamIds.size(); i++) {
-            joinEntities.add(new PlaylistStreamEntity(playlistId, streamIds.get(i), i));
+            joinEntities.add(new PlaylistStreamEntity(playlistId, streamIds.get(i), i, null));
         }
 
         return Completable.fromRunnable(() -> database.runInTransaction(() -> {

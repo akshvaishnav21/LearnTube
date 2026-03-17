@@ -216,6 +216,16 @@ public final class InfoItemDialog {
         }
 
         /**
+         * Adds a custom entry and appends it to the current entry list.
+         * @param entry the custom entry to add
+         * @return the current {@link Builder} instance
+         */
+        public Builder addEntry(@NonNull final StreamDialogEntry entry) {
+            entries.add(entry);
+            return this;
+        }
+
+        /**
          * Adds new entries. These are appended to the current entry list.
          * @param newEntries the entries to add
          * @return the current {@link Builder} instance
