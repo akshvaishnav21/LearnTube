@@ -90,6 +90,7 @@ import org.schabi.newpipe.views.FocusOverlayView;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -112,6 +113,8 @@ public class MainActivity extends AppCompatActivity {
     private static final int ITEM_ID_BOOKMARKS = -3;
     private static final int ITEM_ID_DOWNLOADS = -4;
     private static final int ITEM_ID_HISTORY = -5;
+    private static final int ITEM_ID_TRENDING_GROUP = -10;
+    private boolean trendingGroupExpanded = false;
     private static final int ITEM_ID_SETTINGS = 0;
     private static final int ITEM_ID_DONATION = 1;
     private static final int ITEM_ID_ABOUT = 2;
@@ -276,18 +279,7 @@ public class MainActivity extends AppCompatActivity {
                 .setIcon(R.drawable.ic_history);
 
         //Kiosks
-        final int currentServiceId = ServiceHelper.getSelectedServiceId(this);
-        final StreamingService service = NewPipe.getService(currentServiceId);
-
-        int kioskMenuItemId = 0;
-
-        for (final String ks : service.getKioskList().getAvailableKiosks()) {
-            drawerLayoutBinding.navigation.getMenu()
-                    .add(R.id.menu_kiosks_group, kioskMenuItemId, 0, KioskTranslator
-                            .getTranslatedKioskName(ks, this))
-                    .setIcon(KioskTranslator.getKioskIcon(ks));
-            kioskMenuItemId++;
-        }
+        addKioskMenuItems();
 
         //Settings and About
         drawerLayoutBinding.navigation.getMenu()
@@ -302,6 +294,40 @@ public class MainActivity extends AppCompatActivity {
                 .setIcon(R.drawable.ic_info_outline);
     }
 
+    private void addKioskMenuItems() throws ExtractionException {
+        final StreamingService service = ServiceHelper.getSelectedService(this);
+        final List<String> kiosks =
+                new ArrayList<>(service.getKioskList().getAvailableKiosks());
+
+        // Collapsible "Trending videos" header
+        drawerLayoutBinding.navigation.getMenu()
+                .add(R.id.menu_kiosks_group, ITEM_ID_TRENDING_GROUP, 0,
+                        R.string.trending_videos_group)
+                .setIcon(trendingGroupExpanded
+                        ? R.drawable.ic_arrow_drop_up : R.drawable.ic_arrow_drop_down);
+
+        // Trending kiosk items — shown only when expanded
+        if (trendingGroupExpanded) {
+            for (int i = 0; i < kiosks.size(); i++) {
+                if (!"live".equals(kiosks.get(i))) {
+                    drawerLayoutBinding.navigation.getMenu()
+                            .add(R.id.menu_kiosks_group, i, 1,
+                                    KioskTranslator.getTranslatedKioskName(kiosks.get(i), this))
+                            .setIcon(KioskTranslator.getKioskIcon(kiosks.get(i)));
+                }
+            }
+        }
+
+        // "Live" kiosk is always visible
+        final int liveIdx = kiosks.indexOf("live");
+        if (liveIdx >= 0) {
+            drawerLayoutBinding.navigation.getMenu()
+                    .add(R.id.menu_kiosks_group, liveIdx, 2,
+                            KioskTranslator.getTranslatedKioskName("live", this))
+                    .setIcon(KioskTranslator.getKioskIcon("live"));
+        }
+    }
+
     private boolean drawerItemSelected(final MenuItem item) {
         final int groupId = item.getGroupId();
         if (groupId == R.id.menu_services_group) {
@@ -309,6 +335,17 @@ public class MainActivity extends AppCompatActivity {
         } else if (groupId == R.id.menu_tabs_group) {
             tabSelected(item);
         } else if (groupId == R.id.menu_kiosks_group) {
+            if (item.getItemId() == ITEM_ID_TRENDING_GROUP) {
+                trendingGroupExpanded = !trendingGroupExpanded;
+                try {
+                    drawerLayoutBinding.navigation.getMenu()
+                            .removeGroup(R.id.menu_kiosks_group);
+                    addKioskMenuItems();
+                } catch (final Exception e) {
+                    ErrorUtil.showUiErrorSnackbar(this, "Toggling trending group", e);
+                }
+                return true; // keep drawer open
+            }
             try {
                 kioskSelected(item);
             } catch (final Exception e) {
