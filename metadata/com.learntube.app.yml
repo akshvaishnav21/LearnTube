@@ -6,19 +6,6 @@ SourceCode: https://github.com/akshvaishnav21/LearnTube
 IssueTracker: https://github.com/akshvaishnav21/LearnTube/issues
 
 AutoName: LearnTube
-Summary: A learning-focused YouTube client with progress tracking and notes
-Description: |-
-  LearnTube is a privacy-first YouTube client for Android that adds structured
-  learning tools on top of NewPipe. No Google account required. No Google Play
-  Services. No tracking.
-
-  Learning features include: Learning Paths Dashboard (progress bars per playlist,
-  weekly study stats), Watch Progress Tracking (mark videos watched/unwatched),
-  Timestamped Notes (save notes at playback positions, tap to seek back), and
-  Learning Streak & Study Time (daily streak, calendar of active days).
-
-  LearnTube is a fork of NewPipe (https://github.com/TeamNewPipe/NewPipe) and is
-  not affiliated with or endorsed by TeamNewPipe.
 
 RepoType: git
 Repo: https://github.com/akshvaishnav21/LearnTube
