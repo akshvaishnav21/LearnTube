@@ -40,7 +40,7 @@ configure<ApplicationExtension> {
     namespace = "org.schabi.newpipe"
 
     defaultConfig {
-        applicationId = "org.schabi.newpipe"
+        applicationId = "com.learntube.app"
         resValue("string", "app_name", "LearnTube")
         minSdk = 21
         targetSdk = 35
@@ -114,6 +114,11 @@ configure<ApplicationExtension> {
         viewBinding = true
         buildConfig = true
         resValues = true
+    }
+
+    dependenciesInfo {
+        includeInApk = false
+        includeInBundle = false
     }
 
     packaging {

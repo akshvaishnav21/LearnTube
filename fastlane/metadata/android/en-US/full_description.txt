@@ -1,1 +1,32 @@
-NewPipe does not use any Google framework libraries, or the YouTube API. It only parses the website in order to gain the information it needs. Therefore this app can be used on devices without Google Services installed. Also, you don't need a YouTube account to use NewPipe, and it's FLOSS.
+LearnTube is a privacy-first YouTube client for Android that adds structured learning tools on top of NewPipe. No Google account required. No Google Play Services. No tracking.
+
+<b>Learning Features</b>
+
+<b>Learning Paths Dashboard</b> — Your bookmarked playlists become learning paths. See a progress bar for each path (watched / total videos), along with a stats summary showing active and completed paths and your weekly study hours.
+
+<b>Watch Progress Tracking</b> — Long-press any video in a playlist to mark it as Watched or Unwatched. The playlist menu also offers bulk actions: Mark all watched and Reset all progress.
+
+<b>Timestamped Notes</b> — Tap the note button in the player to save a note anchored to the current position. Notes appear in the video detail screen in timestamp order. Tap any note to seek back to that moment.
+
+<b>Learning Streak &amp; Study Time</b> — Track consecutive days of study activity, total study time today / this week / all time, and view a calendar of your active days.
+
+<b>All NewPipe Features</b>
+
+LearnTube inherits the full NewPipe feature set:
+
+* Watch videos up to 4K
+* Background audio playback
+* Picture-in-Picture player
+* Live stream support
+* Subtitles and closed captions
+* Subscribe to channels without an account
+* New-video notifications
+* Channel groups and feed browsing
+* Watch history
+* Local and remote playlist support
+* Video, audio, and subtitle downloads
+* YouTube, PeerTube, Bandcamp, SoundCloud, and media.ccc.de
+
+LearnTube does not use any Google framework libraries or the YouTube API. It only parses the website to get the information it needs. This means the app works on devices without Google Services installed.
+
+LearnTube is a fork of <a href="https://github.com/TeamNewPipe/NewPipe">NewPipe</a> and is not affiliated with or endorsed by TeamNewPipe.

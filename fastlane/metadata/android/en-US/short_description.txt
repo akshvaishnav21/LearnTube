@@ -1,1 +1,1 @@
-A free lightweight YouTube frontend for Android.
+A learning-focused YouTube client with progress tracking and notes, built on NewPipe.

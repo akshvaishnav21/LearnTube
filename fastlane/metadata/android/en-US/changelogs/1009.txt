@@ -1,14 +1,9 @@
-Important
-Information on and call for action for the Keep Android Open campaign added: https://www.keepandroidopen.org/
+LearnTube 0.28.4 — Initial Release
 
-Improved
-[Feed] Shuffle the order outdated subscriptions are updated in
-Do not stack comment pages
-Do not pass click events to underlying views when clicking on video detail page
+New Learning Features:
+- Learning Paths Dashboard: progress bars per playlist, stats header with weekly study hours
+- Watch Progress Tracking: mark videos watched/unwatched, bulk mark all/reset
+- Timestamped Notes: save notes during playback, tap to seek back
+- Learning Streak & Study Time: daily streak, today/week/all-time study hours, activity calendar
 
-Fixed
-Comment replies header layout without avatar image
-Multiple player-related UI fixes
-[SoundCloud] Fix streams with long IDs
-
-and more fixes and improvements!
+Based on NewPipe 0.28.4.
