@@ -11,6 +11,7 @@ import android.widget.TextView;
 import androidx.annotation.DrawableRes;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import androidx.appcompat.widget.AppCompatImageView;
 
 import org.schabi.newpipe.R;
@@ -21,7 +22,7 @@ public final class AddTabDialog {
     AddTabDialog(@NonNull final Context context, @NonNull final ChooseTabListItem[] items,
                  @NonNull final DialogInterface.OnClickListener actions) {
 
-        dialog = new AlertDialog.Builder(context)
+        dialog = new MaterialAlertDialogBuilder(context)
                 .setTitle(context.getString(R.string.tab_choose))
                 .setAdapter(new DialogListAdapter(context, items), actions)
                 .create();

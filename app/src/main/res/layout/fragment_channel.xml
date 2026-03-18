@@ -146,7 +146,7 @@
             android:id="@+id/tab_layout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="?attr/colorPrimary"
+            android:background="?attr/toolbar_background_color"
             app:tabGravity="fill"
             app:tabIndicatorColor="@color/white"
             app:tabMode="scrollable"

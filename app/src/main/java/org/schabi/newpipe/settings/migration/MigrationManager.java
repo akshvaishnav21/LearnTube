@@ -4,6 +4,7 @@ import android.content.Context;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import androidx.core.util.Consumer;
 
 import org.schabi.newpipe.R;
@@ -90,7 +91,7 @@ public final class MigrationManager {
     static AlertDialog createMigrationInfoDialog(@NonNull final Context uiContext,
                                                  @NonNull final String title,
                                                  @NonNull final String message) {
-        return new AlertDialog.Builder(uiContext)
+        return new MaterialAlertDialogBuilder(uiContext)
                 .setTitle(title)
                 .setMessage(message)
                 .setPositiveButton(R.string.ok, null)

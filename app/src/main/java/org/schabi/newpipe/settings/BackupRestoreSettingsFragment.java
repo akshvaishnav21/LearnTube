@@ -3,8 +3,9 @@ package org.schabi.newpipe.settings;
 import static org.schabi.newpipe.extractor.utils.Utils.isBlank;
 
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.content.Context;
+import androidx.appcompat.app.AlertDialog;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
@@ -111,7 +112,7 @@ public class BackupRestoreSettingsFragment extends BasePreferenceFragment {
         // A dialogue will pop up to confirm if user intends to reset all settings
         resetSettings.setOnPreferenceClickListener(preference -> {
             // Show Alert Dialogue
-            final AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+            final MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(getContext());
             builder.setMessage(R.string.reset_all_settings);
             builder.setCancelable(true);
             builder.setPositiveButton(R.string.ok, (dialogInterface, i) -> {
@@ -168,7 +169,7 @@ public class BackupRestoreSettingsFragment extends BasePreferenceFragment {
             final StoredFileHelper file = new StoredFileHelper(
                     requireContext(), result.getData().getData(), ZIP_MIME_TYPE);
 
-            new androidx.appcompat.app.AlertDialog.Builder(requireActivity())
+            new MaterialAlertDialogBuilder(requireActivity())
                     .setMessage(R.string.override_current_data)
                     .setPositiveButton(R.string.ok, (d, id) ->
                             importDatabase(file, lastImportDataUri))
@@ -218,7 +219,7 @@ public class BackupRestoreSettingsFragment extends BasePreferenceFragment {
             // if settings file exist, ask if it should be imported.
             final boolean hasJsonPrefs = manager.exportHasJsonPrefs(file);
             if (hasJsonPrefs || manager.exportHasSerializedPrefs(file)) {
-                new androidx.appcompat.app.AlertDialog.Builder(requireContext())
+                new MaterialAlertDialogBuilder(requireContext())
                         .setTitle(R.string.import_settings)
                         .setMessage(hasJsonPrefs ? null : requireContext()
                                 .getString(R.string.import_settings_vulnerable_format))

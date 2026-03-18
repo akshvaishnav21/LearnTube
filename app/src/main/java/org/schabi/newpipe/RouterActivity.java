@@ -28,6 +28,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.StringRes;
 import androidx.appcompat.app.AlertDialog;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.content.res.AppCompatResources;
 import androidx.core.app.NotificationCompat;
@@ -282,7 +283,7 @@ public class RouterActivity extends AppCompatActivity {
 
     protected void showUnsupportedUrlDialog(final String url) {
         final Context context = getThemeWrapperContext();
-        new AlertDialog.Builder(context)
+        new MaterialAlertDialogBuilder(context)
                 .setTitle(R.string.unsupported_url)
                 .setMessage(R.string.unsupported_url_dialog_message)
                 .setIcon(R.drawable.ic_share)
@@ -434,7 +435,7 @@ public class RouterActivity extends AppCompatActivity {
             }
         };
 
-        alertDialogChoice = new AlertDialog.Builder(themeWrapperContext)
+        alertDialogChoice = new MaterialAlertDialogBuilder(themeWrapperContext)
                 .setTitle(R.string.preferred_open_action_share_menu_title)
                 .setView(binding.getRoot())
                 .setCancelable(true)

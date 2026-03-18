@@ -19,6 +19,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.StringRes;
 import androidx.appcompat.app.AlertDialog;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import androidx.core.math.MathUtils;
 import androidx.fragment.app.DialogFragment;
 import androidx.preference.PreferenceManager;
@@ -149,7 +150,7 @@ public class PlaybackParameterDialog extends DialogFragment {
         binding = DialogPlaybackParameterBinding.inflate(getLayoutInflater());
         initUI();
 
-        final AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(requireActivity())
+        final AlertDialog.Builder dialogBuilder = new MaterialAlertDialogBuilder(requireActivity())
                 .setView(binding.getRoot())
                 .setCancelable(true)
                 .setNegativeButton(R.string.cancel, (dialogInterface, i) -> {

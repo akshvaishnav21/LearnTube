@@ -14,6 +14,7 @@ import android.widget.RadioGroup;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AlertDialog;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import androidx.appcompat.content.res.AppCompatResources;
 import androidx.core.widget.TextViewCompat;
 
@@ -123,7 +124,7 @@ class NotificationSlot {
         final SingleChoiceDialogViewBinding binding =
                 SingleChoiceDialogViewBinding.inflate(inflater);
 
-        final AlertDialog alertDialog = new AlertDialog.Builder(context)
+        final AlertDialog alertDialog = new MaterialAlertDialogBuilder(context)
                 .setTitle(SLOT_TITLES[i])
                 .setView(binding.getRoot())
                 .setCancelable(true)

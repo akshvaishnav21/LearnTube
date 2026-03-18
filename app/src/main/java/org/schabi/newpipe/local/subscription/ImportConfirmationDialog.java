@@ -5,7 +5,7 @@ import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AlertDialog;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import androidx.core.os.BundleCompat;
 import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.Fragment;
@@ -37,7 +37,7 @@ public class ImportConfirmationDialog extends DialogFragment {
     @Override
     public Dialog onCreateDialog(@Nullable final Bundle savedInstanceState) {
         final var context = requireContext();
-        return new AlertDialog.Builder(context)
+        return new MaterialAlertDialogBuilder(context)
                 .setMessage(R.string.import_network_expensive_warning)
                 .setCancelable(true)
                 .setNegativeButton(R.string.cancel, null)

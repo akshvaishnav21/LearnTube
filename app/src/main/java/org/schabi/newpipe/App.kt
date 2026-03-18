@@ -14,6 +14,7 @@ import coil3.network.okhttp.OkHttpNetworkFetcherFactory
 import coil3.request.allowRgb565
 import coil3.request.crossfade
 import coil3.util.DebugLogger
+import com.google.android.material.color.DynamicColors
 import com.jakewharton.processphoenix.ProcessPhoenix
 import io.reactivex.rxjava3.exceptions.CompositeException
 import io.reactivex.rxjava3.exceptions.MissingBackpressureException
@@ -79,6 +80,12 @@ open class App :
         super.onCreate()
 
         instance = this
+
+        // Apply dynamic colors (Material You) if enabled and available (Android 12+)
+        val prefs0 = PreferenceManager.getDefaultSharedPreferences(this)
+        if (prefs0.getBoolean(getString(R.string.dynamic_color_key), false)) {
+            DynamicColors.applyToActivitiesIfAvailable(this)
+        }
 
         if (ProcessPhoenix.isPhoenixProcess(this)) {
             Log.i(TAG, "This is a phoenix process! Aborting initialization of App[onCreate]")

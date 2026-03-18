@@ -8,6 +8,9 @@ import android.widget.Toast;
 
 import androidx.core.app.ActivityCompat;
 import androidx.preference.Preference;
+import androidx.preference.SwitchPreferenceCompat;
+
+import com.google.android.material.color.DynamicColors;
 
 import org.schabi.newpipe.R;
 import org.schabi.newpipe.util.Constants;
@@ -52,6 +55,8 @@ public class AppearanceSettingsFragment extends BasePreferenceFragment {
                         getString(R.string.auto_device_theme_title)));
             }
         }
+
+        setupDynamicColorPreference();
     }
 
     @Override
@@ -65,6 +70,28 @@ public class AppearanceSettingsFragment extends BasePreferenceFragment {
         }
 
         return super.onPreferenceTreeClick(preference);
+    }
+
+    private void setupDynamicColorPreference() {
+        final SwitchPreferenceCompat dynamicColorPref =
+                findPreference(getString(R.string.dynamic_color_key));
+        if (dynamicColorPref == null) {
+            return;
+        }
+        if (!DynamicColors.isDynamicColorAvailable()) {
+            dynamicColorPref.setEnabled(false);
+            dynamicColorPref.setSummary(R.string.dynamic_color_summary);
+        } else {
+            dynamicColorPref.setOnPreferenceChangeListener((preference, newValue) -> {
+                defaultPreferences.edit()
+                        .putBoolean(getString(R.string.dynamic_color_key), (Boolean) newValue)
+                        .apply();
+                if (getActivity() != null) {
+                    ActivityCompat.recreate(getActivity());
+                }
+                return true;
+            });
+        }
     }
 
     private void applyThemeChange(final String beginningThemeKey,

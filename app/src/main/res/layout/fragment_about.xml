@@ -58,7 +58,7 @@
 
         <Button
             android:id="@+id/faq_link"
-            style="@style/Base.Widget.AppCompat.Button.Borderless"
+            style="@style/Widget.Material3.Button.TextButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="end"
@@ -78,7 +78,7 @@
 
         <Button
             android:id="@+id/about_github_link"
-            style="@style/Base.Widget.AppCompat.Button.Borderless"
+            style="@style/Widget.Material3.Button.TextButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="end"
@@ -98,7 +98,7 @@
 
         <Button
             android:id="@+id/about_donation_link"
-            style="@style/Base.Widget.AppCompat.Button.Borderless"
+            style="@style/Widget.Material3.Button.TextButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="end"
@@ -118,7 +118,7 @@
 
         <Button
             android:id="@+id/about_website_link"
-            style="@style/Base.Widget.AppCompat.Button.Borderless"
+            style="@style/Widget.Material3.Button.TextButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="end"
@@ -138,7 +138,7 @@
 
         <Button
             android:id="@+id/about_privacy_policy_link"
-            style="@style/Base.Widget.AppCompat.Button.Borderless"
+            style="@style/Widget.Material3.Button.TextButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="end"

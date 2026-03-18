@@ -70,7 +70,7 @@
 
             <Button
                 android:id="@+id/select_channel_button"
-                style="@style/Widget.AppCompat.Button.Borderless"
+                style="@style/Widget.Material3.Button.TextButton"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="8dp"
@@ -103,7 +103,7 @@
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
-            <androidx.appcompat.widget.Toolbar
+            <com.google.android.material.appbar.MaterialToolbar
                 android:id="@+id/subscriptions_header_toolbar"
                 android:layout_width="match_parent"
                 android:layout_height="?attr/actionBarSize"
@@ -141,7 +141,7 @@
                     layout="@layout/toolbar_search_layout"
                     android:visibility="gone" />
 
-            </androidx.appcompat.widget.Toolbar>
+            </com.google.android.material.appbar.MaterialToolbar>
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/subscriptions_selector_list"

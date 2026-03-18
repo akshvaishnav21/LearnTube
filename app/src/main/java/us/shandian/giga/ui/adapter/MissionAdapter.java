@@ -45,6 +45,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.StringRes;
 import androidx.appcompat.app.AlertDialog;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import androidx.core.app.NotificationCompat;
 import androidx.core.content.ContextCompat;
 import androidx.core.content.FileProvider;
@@ -534,7 +535,7 @@ public class MissionAdapter extends Adapter<ViewHolder> implements Handler.Callb
                 break;
         }
 
-        AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
+        AlertDialog.Builder builder = new MaterialAlertDialogBuilder(mContext);
 
         if (msgEx != null)
             builder.setMessage(msgEx);

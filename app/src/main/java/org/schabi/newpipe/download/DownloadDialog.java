@@ -32,6 +32,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.StringRes;
 import androidx.appcompat.app.AlertDialog;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import androidx.appcompat.widget.Toolbar;
 import androidx.collection.SparseArrayCompat;
 import androidx.documentfile.provider.DocumentFile;
@@ -737,7 +738,7 @@ public class DownloadDialog extends DialogFragment
     }
 
     private void showFailedDialog(@StringRes final int msg) {
-        new AlertDialog.Builder(context)
+        new MaterialAlertDialogBuilder(context)
                 .setTitle(R.string.general_error)
                 .setMessage(msg)
                 .setNegativeButton(getString(R.string.ok), null)
@@ -947,7 +948,7 @@ public class DownloadDialog extends DialogFragment
                 return; // unreachable
         }
 
-        final AlertDialog.Builder askDialog = new AlertDialog.Builder(context)
+        final AlertDialog.Builder askDialog = new MaterialAlertDialogBuilder(context)
                 .setTitle(R.string.download_dialog_title)
                 .setMessage(msgBody)
                 .setNegativeButton(R.string.cancel, null);

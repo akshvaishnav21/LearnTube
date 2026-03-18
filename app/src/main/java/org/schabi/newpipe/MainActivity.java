@@ -42,6 +42,7 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.core.view.GravityCompat;
@@ -946,7 +947,7 @@ public class MainActivity extends AppCompatActivity {
                 "https://github.com/woheller69/FreeDroidWarn?tab=readme-ov-file#solutions";
 
         if (kaoLastCheck.plus(30, ChronoUnit.DAYS).isBefore(now)) {
-            final var dialog = new AlertDialog.Builder(this)
+            final var dialog = new MaterialAlertDialogBuilder(this)
                     .setTitle("Keep Android Open")
                     .setCancelable(false)
                     .setMessage(this.getString(R.string.kao_dialog_warning))

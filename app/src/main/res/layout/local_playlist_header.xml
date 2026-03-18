@@ -36,8 +36,9 @@
         tools:ignore="RtlHardcoded"
         tools:text="234 videos" />
 
-    <androidx.cardview.widget.CardView
+    <com.google.android.material.card.MaterialCardView
         android:id="@+id/playlist_stats_card"
+        style="@style/Widget.Material3.CardView.Filled"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@id/playlist_stream_count"
@@ -95,7 +96,7 @@
 
             <Button
                 android:id="@+id/playlist_continue_button"
-                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                style="@style/Widget.Material3.Button.OutlinedButton"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
@@ -108,7 +109,7 @@
 
         </LinearLayout>
 
-    </androidx.cardview.widget.CardView>
+    </com.google.android.material.card.MaterialCardView>
 
     <include
         android:id="@+id/playlist_control"

@@ -17,6 +17,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlaybackException;
@@ -97,7 +98,7 @@ public final class VideoDetailPlayerCrasher {
         final SingleChoiceDialogViewBinding binding =
                 SingleChoiceDialogViewBinding.inflate(inflater);
 
-        final AlertDialog alertDialog = new AlertDialog.Builder(themeWrapperContext)
+        final AlertDialog alertDialog = new MaterialAlertDialogBuilder(themeWrapperContext)
                 .setTitle("Choose an exception")
                 .setView(binding.getRoot())
                 .setCancelable(true)

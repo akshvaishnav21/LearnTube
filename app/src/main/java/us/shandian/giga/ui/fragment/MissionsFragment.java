@@ -22,6 +22,7 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts.StartActivityForResult;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import androidx.fragment.app.Fragment;
 import androidx.preference.PreferenceManager;
 import androidx.recyclerview.widget.GridLayoutManager;
@@ -208,7 +209,7 @@ public class MissionsFragment extends Fragment {
 
     public void showClearDownloadHistoryPrompt() {
         // ask the user whether he wants to just clear history or instead delete files on disk
-        new AlertDialog.Builder(mContext)
+        new MaterialAlertDialogBuilder(mContext)
                 .setTitle(R.string.clear_download_history)
                 .setMessage(R.string.confirm_prompt)
                 // Intentionally misusing buttons' purpose in order to achieve good order
@@ -222,7 +223,7 @@ public class MissionsFragment extends Fragment {
 
     public void showDeleteDownloadedFilesConfirmationPrompt() {
         // make sure the user confirms once more before deleting files on disk
-        new AlertDialog.Builder(mContext)
+        new MaterialAlertDialogBuilder(mContext)
                 .setTitle(R.string.delete_downloaded_files_confirm)
                 .setNegativeButton(R.string.cancel, null)
                 .setPositiveButton(R.string.ok, (dialog, which) ->

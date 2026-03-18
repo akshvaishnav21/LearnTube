@@ -31,7 +31,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AlertDialog;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -554,7 +554,7 @@ public class LocalPlaylistFragment extends BaseLocalListFragment<List<PlaylistSt
         dialogBinding.dialogEditText.setSelection(dialogBinding.dialogEditText.getText().length());
         dialogBinding.dialogEditText.setText(name);
 
-        new AlertDialog.Builder(getContext())
+        new MaterialAlertDialogBuilder(getContext())
                 .setTitle(R.string.rename_playlist)
                 .setView(dialogBinding.getRoot())
                 .setCancelable(true)
@@ -627,7 +627,7 @@ public class LocalPlaylistFragment extends BaseLocalListFragment<List<PlaylistSt
     }
 
     private void openRemoveDuplicatesDialog() {
-        new AlertDialog.Builder(this.getActivity())
+        new MaterialAlertDialogBuilder(this.getActivity())
                 .setTitle(R.string.remove_duplicates_title)
                 .setMessage(R.string.remove_duplicates_message)
                 .setPositiveButton(R.string.ok, (dialog, i) ->
@@ -846,7 +846,7 @@ public class LocalPlaylistFragment extends BaseLocalListFragment<List<PlaylistSt
         final int padding = (int) (16 * requireContext().getResources()
                 .getDisplayMetrics().density);
         editText.setPadding(padding, padding, padding, padding);
-        new AlertDialog.Builder(requireContext())
+        new MaterialAlertDialogBuilder(requireContext())
                 .setTitle(R.string.playlist_note_dialog_title)
                 .setView(editText)
                 .setPositiveButton(R.string.ok, (d, w) -> {
@@ -960,7 +960,7 @@ public class LocalPlaylistFragment extends BaseLocalListFragment<List<PlaylistSt
      * After the user has made a choice, the playlist is shared.
      */
     private void createShareConfirmationDialog() {
-        new AlertDialog.Builder(requireContext())
+        new MaterialAlertDialogBuilder(requireContext())
                 .setTitle(R.string.share_playlist)
                 .setCancelable(true)
                 .setPositiveButton(R.string.share_playlist_with_titles, (dialog, which) ->
@@ -994,7 +994,7 @@ public class LocalPlaylistFragment extends BaseLocalListFragment<List<PlaylistSt
         checkboxContainer.addView(removePartiallyWatchedCheckbox,
                 new LayoutParams(MATCH_PARENT, WRAP_CONTENT));
 
-        new AlertDialog.Builder(requireContext())
+        new MaterialAlertDialogBuilder(requireContext())
                 .setMessage(R.string.remove_watched_popup_warning)
                 .setTitle(R.string.remove_watched_popup_title)
                 .setView(checkboxContainer)

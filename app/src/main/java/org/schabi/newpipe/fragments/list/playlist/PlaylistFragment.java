@@ -20,7 +20,7 @@ import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AlertDialog;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import androidx.appcompat.content.res.AppCompatResources;
 
 import com.google.android.material.shape.CornerFamily;
@@ -205,7 +205,7 @@ public class PlaylistFragment extends BaseListInfoFragment<StreamInfoItem, Playl
             editText.setText(existingNote);
             editText.setSelection(existingNote.length());
         }
-        new AlertDialog.Builder(requireContext())
+        new MaterialAlertDialogBuilder(requireContext())
                 .setTitle(R.string.playlist_note_dialog_title)
                 .setView(editText)
                 .setPositiveButton(R.string.ok, (d, w) -> {

@@ -12,6 +12,7 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import androidx.fragment.app.Fragment;
 import androidx.preference.PreferenceManager;
 
@@ -75,7 +76,7 @@ public final class InfoItemDialog {
         final DialogInterface.OnClickListener action = (d, index) ->
             entries.get(index).action.onClick(fragment, info);
 
-        dialog = new AlertDialog.Builder(activity)
+        dialog = new MaterialAlertDialogBuilder(activity)
                 .setCustomTitle(bannerView)
                 .setItems(items, action)
                 .create();
