@@ -19,6 +19,8 @@ import org.schabi.newpipe.database.history.dao.SearchHistoryDAO
 import org.schabi.newpipe.database.history.dao.StreamHistoryDAO
 import org.schabi.newpipe.database.history.model.SearchHistoryEntry
 import org.schabi.newpipe.database.history.model.StreamHistoryEntity
+import org.schabi.newpipe.database.notes.dao.TimestampNotesDAO
+import org.schabi.newpipe.database.notes.model.TimestampNoteEntity
 import org.schabi.newpipe.database.playlist.dao.PlaylistDAO
 import org.schabi.newpipe.database.playlist.dao.PlaylistRemoteDAO
 import org.schabi.newpipe.database.playlist.dao.PlaylistStreamDAO
@@ -36,7 +38,7 @@ import org.schabi.newpipe.database.subscription.SubscriptionEntity
 
 @TypeConverters(Converters::class)
 @Database(
-    version = Migrations.DB_VER_11,
+    version = Migrations.DB_VER_12,
     entities = [
         SubscriptionEntity::class,
         SearchHistoryEntry::class,
@@ -50,7 +52,8 @@ import org.schabi.newpipe.database.subscription.SubscriptionEntity
         FeedEntity::class,
         FeedGroupEntity::class,
         FeedGroupSubscriptionEntity::class,
-        FeedLastUpdatedEntity::class
+        FeedLastUpdatedEntity::class,
+        TimestampNoteEntity::class
     ]
 )
 abstract class AppDatabase : RoomDatabase() {
@@ -65,6 +68,7 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun streamNotesDAO(): StreamNotesDAO
     abstract fun streamStateDAO(): StreamStateDAO
     abstract fun subscriptionDAO(): SubscriptionDAO
+    abstract fun timestampNotesDAO(): TimestampNotesDAO
 
     companion object {
         const val DATABASE_NAME: String = "newpipe.db"

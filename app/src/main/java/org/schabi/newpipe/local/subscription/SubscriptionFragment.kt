@@ -130,6 +130,8 @@ class SubscriptionFragment : BaseStateFragment<SubscriptionState>() {
             .setIcon(R.drawable.ic_backup)
 
         for (service in ServiceList.all()) {
+            if (service.serviceId == ServiceList.SoundCloud.serviceId) continue
+
             val subscriptionExtractor = service.subscriptionExtractor ?: continue
 
             val supportedSources = subscriptionExtractor.supportedSources

@@ -44,6 +44,7 @@ import org.schabi.newpipe.database.LocalItem;
 import org.schabi.newpipe.database.history.model.StreamHistoryEntry;
 import org.schabi.newpipe.database.playlist.PlaylistStreamEntry;
 import org.schabi.newpipe.database.playlist.model.PlaylistEntity;
+import org.schabi.newpipe.database.stream.dao.StreamStateDAO;
 import org.schabi.newpipe.database.stream.model.StreamEntity;
 import org.schabi.newpipe.database.stream.model.StreamStateEntity;
 import org.schabi.newpipe.databinding.DialogEditTextBinding;
@@ -380,6 +381,10 @@ public class LocalPlaylistFragment extends BaseLocalListFragment<List<PlaylistSt
             if (!isRewritingPlaylist) {
                 openRemoveDuplicatesDialog();
             }
+        } else if (item.getItemId() == R.id.menu_item_mark_all_watched) {
+            markAllStreamsWatched();
+        } else if (item.getItemId() == R.id.menu_item_reset_all_progress) {
+            openResetAllProgressDialog();
         } else {
             return super.onOptionsItemSelected(item);
         }
@@ -809,6 +814,23 @@ public class LocalPlaylistFragment extends BaseLocalListFragment<List<PlaylistSt
                     R.string.playlist_note_dialog_title,
                     (f, i) -> showNoteEditDialog(item)));
 
+            // Mark as watched / unwatched
+            final long durationSec = item.getStreamEntity().getDuration();
+            final long progressMs = item.getProgressMillis();
+            final boolean isWatched = durationSec > 0
+                    && progressMs >= durationSec * 1000
+                            - StreamStateEntity.PLAYBACK_FINISHED_END_MILLISECONDS
+                    && progressMs >= durationSec * 1000 * 3 / 4;
+            if (isWatched) {
+                dialogBuilder.addEntry(new StreamDialogEntry(
+                        R.string.mark_as_unwatched,
+                        (f, i) -> markStreamWatchState(item, false)));
+            } else {
+                dialogBuilder.addEntry(new StreamDialogEntry(
+                        R.string.mark_as_watched,
+                        (f, i) -> markStreamWatchState(item, true)));
+            }
+
             // set custom actions
             // all entries modified below have already been added within the builder
             dialogBuilder
@@ -1007,6 +1029,103 @@ public class LocalPlaylistFragment extends BaseLocalListFragment<List<PlaylistSt
     public void setTabsPagerAdapter(
             @Nullable final MainFragment.SelectedTabsPagerAdapter tabsPagerAdapter) {
         this.tabsPagerAdapter = tabsPagerAdapter;
+    }
+
+    /*//////////////////////////////////////////////////////////////////////////
+    // Mark as watched / unwatched helpers
+    //////////////////////////////////////////////////////////////////////////*/
+
+    private void markStreamWatchState(final PlaylistStreamEntry item, final boolean watched) {
+        final StreamStateDAO streamStateDAO =
+                NewPipeDatabase.getInstance(requireContext()).streamStateDAO();
+        final long streamId = item.getStreamId();
+        final long durationSec = item.getStreamEntity().getDuration();
+        disposables.add(
+            io.reactivex.rxjava3.core.Single.fromCallable(() -> {
+                if (watched) {
+                    // Write progress_time = duration * 1000 to mark as finished
+                    final long watchedMs = durationSec > 0 ? durationSec * 1000 : 1L;
+                    final StreamStateEntity entity = new StreamStateEntity(streamId, watchedMs);
+                    streamStateDAO.upsert(entity);
+                } else {
+                    // Delete the state row to mark as unwatched
+                    streamStateDAO.deleteState(streamId);
+                }
+                return true;
+            })
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe(
+                ignored -> startLoading(true),
+                throwable -> showUiErrorSnackbar(this, "Updating watch state", throwable)
+            )
+        );
+    }
+
+    private void markAllStreamsWatched() {
+        final StreamStateDAO streamStateDAO =
+                NewPipeDatabase.getInstance(requireContext()).streamStateDAO();
+        final List<LocalItem> items = itemListAdapter.getItemsList();
+        disposables.add(
+            io.reactivex.rxjava3.core.Single.fromCallable(() -> {
+                for (final LocalItem localItem : items) {
+                    if (localItem instanceof PlaylistStreamEntry) {
+                        final PlaylistStreamEntry entry = (PlaylistStreamEntry) localItem;
+                        final long durationSec = entry.getStreamEntity().getDuration();
+                        final long watchedMs = durationSec > 0 ? durationSec * 1000 : 1L;
+                        streamStateDAO.upsert(
+                                new StreamStateEntity(entry.getStreamId(), watchedMs));
+                    }
+                }
+                return true;
+            })
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe(
+                ignored -> {
+                    Toast.makeText(requireContext(),
+                            R.string.mark_all_watched_success, Toast.LENGTH_SHORT).show();
+                    startLoading(true);
+                },
+                throwable -> showUiErrorSnackbar(this, "Marking all as watched", throwable)
+            )
+        );
+    }
+
+    private void openResetAllProgressDialog() {
+        new MaterialAlertDialogBuilder(requireContext())
+                .setTitle(R.string.reset_all_progress)
+                .setMessage(R.string.remove_watched_popup_warning)
+                .setPositiveButton(R.string.yes, (d, id) -> resetAllProgress())
+                .setNegativeButton(R.string.cancel, (d, id) -> d.cancel())
+                .show();
+    }
+
+    private void resetAllProgress() {
+        final StreamStateDAO streamStateDAO =
+                NewPipeDatabase.getInstance(requireContext()).streamStateDAO();
+        final List<LocalItem> items = itemListAdapter.getItemsList();
+        disposables.add(
+            io.reactivex.rxjava3.core.Single.fromCallable(() -> {
+                for (final LocalItem localItem : items) {
+                    if (localItem instanceof PlaylistStreamEntry) {
+                        streamStateDAO.deleteState(
+                                ((PlaylistStreamEntry) localItem).getStreamId());
+                    }
+                }
+                return true;
+            })
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe(
+                ignored -> {
+                    Toast.makeText(requireContext(),
+                            R.string.reset_all_progress_success, Toast.LENGTH_SHORT).show();
+                    startLoading(true);
+                },
+                throwable -> showUiErrorSnackbar(this, "Resetting progress", throwable)
+            )
+        );
     }
 }
 

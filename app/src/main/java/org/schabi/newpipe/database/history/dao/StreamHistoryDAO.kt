@@ -58,4 +58,48 @@ abstract class StreamHistoryDAO : BasicDAO<StreamHistoryEntity> {
         """
     )
     abstract fun getStatistics(): Flowable<MutableList<StreamStatisticsEntry>>
+
+    /**
+     * Returns the sum of duration of all watched streams (in seconds).
+     * Uses streams that have at least one history entry.
+     */
+    @Query(
+        """
+        SELECT COALESCE(SUM(streams.duration), 0) FROM streams
+        INNER JOIN (SELECT DISTINCT stream_id FROM stream_history) h ON uid = h.stream_id
+        """
+    )
+    abstract fun getTotalWatchTimeSeconds(): Flowable<Long>
+
+    /**
+     * Returns the distinct UTC dates (as epoch-days) on which any stream was accessed.
+     * We compute epoch_day = access_date_unix_seconds / 86400 in SQLite.
+     * Room stores OffsetDateTime as an ISO string; we use date(access_date) to extract the date.
+     */
+    @Query(
+        """
+        SELECT DISTINCT date(access_date) AS watch_date
+        FROM stream_history
+        ORDER BY watch_date ASC
+        """
+    )
+    abstract fun getDistinctWatchDates(): Flowable<MutableList<String>>
+
+    /** Returns the count of distinct watched streams. */
+    @Query("SELECT COUNT(DISTINCT stream_id) FROM stream_history")
+    abstract fun getWatchedStreamCount(): Flowable<Long>
+
+    /**
+     * Total duration of streams watched this week (last 7 days), in seconds.
+     */
+    @Query(
+        """
+        SELECT COALESCE(SUM(streams.duration), 0) FROM streams
+        INNER JOIN (
+            SELECT DISTINCT stream_id FROM stream_history
+            WHERE date(access_date) >= date('now', '-6 days')
+        ) h ON uid = h.stream_id
+        """
+    )
+    abstract fun getThisWeekWatchTimeSeconds(): Flowable<Long>
 }

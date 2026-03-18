@@ -31,6 +31,7 @@ object Migrations {
     const val DB_VER_9 = 9
     const val DB_VER_10 = 10
     const val DB_VER_11 = 11
+    const val DB_VER_12 = 12
 
     private val TAG = Migrations::class.java.getName()
     private val isDebug = MainActivity.DEBUG
@@ -359,6 +360,23 @@ object Migrations {
         db.execSQL(
             "CREATE TABLE IF NOT EXISTS `stream_notes` " +
                 "(`stream_uid` INTEGER NOT NULL, `note` TEXT, PRIMARY KEY(`stream_uid`))"
+        )
+    }
+
+    val MIGRATION_11_12 = Migration(DB_VER_11, DB_VER_12) { db ->
+        db.execSQL(
+            "CREATE TABLE IF NOT EXISTS `stream_timestamp_notes` " +
+                "(`uid` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, " +
+                "`stream_uid` INTEGER NOT NULL, " +
+                "`timestamp_ms` INTEGER NOT NULL DEFAULT 0, " +
+                "`note` TEXT NOT NULL, " +
+                "`created_at` INTEGER NOT NULL, " +
+                "FOREIGN KEY(`stream_uid`) REFERENCES `streams`(`uid`) " +
+                "ON UPDATE CASCADE ON DELETE CASCADE)"
+        )
+        db.execSQL(
+            "CREATE INDEX IF NOT EXISTS `index_stream_timestamp_notes_stream_uid` " +
+                "ON `stream_timestamp_notes` (`stream_uid`)"
         )
     }
 }

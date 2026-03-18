@@ -42,4 +42,11 @@ interface StreamStateDAO : BasicDAO<StreamStateEntity> {
         silentInsertInternal(stream)
         return update(stream).toLong()
     }
+
+    @Query(
+        "UPDATE " + StreamStateEntity.STREAM_STATE_TABLE +
+            " SET " + StreamStateEntity.STREAM_PROGRESS_MILLIS + " = :progressMillis" +
+            " WHERE " + StreamStateEntity.JOIN_STREAM_ID + " = :streamId"
+    )
+    fun updateProgress(streamId: Long, progressMillis: Long): Int
 }

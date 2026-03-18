@@ -27,12 +27,15 @@ import android.os.Looper;
 import android.provider.Settings;
 import android.util.Log;
 import android.view.KeyEvent;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewParent;
 import android.view.WindowManager;
+import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -45,7 +48,11 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.google.android.exoplayer2.ui.SubtitleView;
 import com.google.android.exoplayer2.video.VideoSize;
 
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+
+import org.schabi.newpipe.NewPipeDatabase;
 import org.schabi.newpipe.R;
+import org.schabi.newpipe.database.notes.model.TimestampNoteEntity;
 import org.schabi.newpipe.databinding.PlayerBinding;
 import org.schabi.newpipe.extractor.stream.StreamInfo;
 import org.schabi.newpipe.extractor.stream.StreamSegment;
@@ -79,6 +86,10 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
+import io.reactivex.rxjava3.disposables.CompositeDisposable;
+import io.reactivex.rxjava3.schedulers.Schedulers;
+
 public final class MainPlayerUi extends VideoPlayerUi implements View.OnLayoutChangeListener {
     private static final String TAG = MainPlayerUi.class.getSimpleName();
 
@@ -100,6 +111,8 @@ public final class MainPlayerUi extends VideoPlayerUi implements View.OnLayoutCh
 
     // fullscreen player
     private ItemTouchHelper itemTouchHelper;
+
+    private final CompositeDisposable noteDisposables = new CompositeDisposable();
 
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -173,6 +186,8 @@ public final class MainPlayerUi extends VideoPlayerUi implements View.OnLayoutCh
                         .ifPresent(fragmentManager ->
                                 PlaylistDialog.showForPlayQueue(player, fragmentManager)));
 
+        binding.noteButton.setOnClickListener(v -> showTimestampNoteDialog());
+
         settingsContentObserver = new ContentObserver(new Handler(Looper.getMainLooper())) {
             @Override
             public void onChange(final boolean selfChange) {
@@ -201,6 +216,8 @@ public final class MainPlayerUi extends VideoPlayerUi implements View.OnLayoutCh
         binding.queueButton.setOnClickListener(null);
         binding.segmentsButton.setOnClickListener(null);
         binding.addToPlaylistButton.setOnClickListener(null);
+        binding.noteButton.setOnClickListener(null);
+        noteDisposables.clear();
 
         context.getContentResolver().unregisterContentObserver(settingsContentObserver);
 
@@ -977,4 +994,64 @@ public final class MainPlayerUi extends VideoPlayerUi implements View.OnLayoutCh
         return DeviceUtils.isLandscape(getParentContext().orElse(player.getService()));
     }
     //endregion
+
+    /*//////////////////////////////////////////////////////////////////////////
+    // Timestamp Notes
+    //////////////////////////////////////////////////////////////////////////*/
+
+    private void showTimestampNoteDialog() {
+        final long positionMs = player.getExoPlayer() != null
+                ? player.getExoPlayer().getCurrentPosition() : 0L;
+        final long totalSeconds = positionMs / 1000;
+        final long hours = totalSeconds / 3600;
+        final long minutes = (totalSeconds % 3600) / 60;
+        final long seconds = totalSeconds % 60;
+        final String timeLabel = hours > 0
+                ? String.format("%d:%02d:%02d", hours, minutes, seconds)
+                : String.format("%d:%02d", minutes, seconds);
+
+        final View dialogView = LayoutInflater.from(context)
+                .inflate(R.layout.dialog_timestamp_note, null);
+        final TextView timestampLabel = dialogView.findViewById(R.id.timestampNoteTimestampLabel);
+        final EditText noteEdit = dialogView.findViewById(R.id.timestampNoteEditText);
+        timestampLabel.setText(timeLabel);
+
+        getParentActivity().ifPresent(activity ->
+            new MaterialAlertDialogBuilder(activity)
+                .setTitle(R.string.timestamp_note_dialog_title)
+                .setView(dialogView)
+                .setPositiveButton(R.string.ok, (d, w) -> {
+                    final String noteText = noteEdit.getText().toString().trim();
+                    if (!noteText.isEmpty()) {
+                        saveTimestampNote(positionMs, noteText);
+                    }
+                })
+                .setNegativeButton(R.string.cancel, null)
+                .show()
+        );
+    }
+
+    private void saveTimestampNote(final long positionMs, final String noteText) {
+        player.getCurrentStreamInfo().ifPresent(info -> {
+            final long createdAt = System.currentTimeMillis();
+            noteDisposables.add(
+                io.reactivex.rxjava3.core.Single.fromCallable(() -> {
+                    final var db = NewPipeDatabase.getInstance(context);
+                    final var streamDao = db.streamDAO();
+                    final var notesDao = db.timestampNotesDAO();
+                    final long streamUid = streamDao.upsert(
+                            new org.schabi.newpipe.database.stream.model.StreamEntity(info));
+                    final TimestampNoteEntity entity = new TimestampNoteEntity(
+                            0, streamUid, positionMs, noteText, createdAt);
+                    return notesDao.insert(entity);
+                })
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(
+                    uid -> { /* saved successfully */ },
+                    throwable -> Log.e(TAG, "Error saving timestamp note", throwable)
+                )
+            );
+        });
+    }
 }

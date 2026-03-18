@@ -381,6 +381,20 @@
                         tools:ignore="RtlHardcoded" />
 
                     <androidx.appcompat.widget.AppCompatImageButton
+                        android:id="@+id/noteButton"
+                        android:layout_width="wrap_content"
+                        android:layout_height="37dp"
+                        android:background="?attr/selectableItemBackgroundBorderless"
+                        android:clickable="true"
+                        android:contentDescription="@string/timestamp_note_button_description"
+                        android:focusable="true"
+                        android:padding="@dimen/player_main_buttons_padding"
+                        android:scaleType="fitXY"
+                        android:src="@drawable/ic_bookmark_white"
+                        app:tint="@color/white"
+                        tools:ignore="RtlHardcoded" />
+
+                    <androidx.appcompat.widget.AppCompatImageButton
                         android:id="@+id/fullScreenButton"
                         android:layout_width="40dp"
                         android:layout_height="40dp"

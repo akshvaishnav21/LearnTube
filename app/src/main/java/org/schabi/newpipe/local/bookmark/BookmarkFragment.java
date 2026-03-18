@@ -12,6 +12,7 @@ import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -30,6 +31,7 @@ import org.schabi.newpipe.database.AppDatabase;
 import org.schabi.newpipe.database.LocalItem;
 import org.schabi.newpipe.database.playlist.PlaylistLocalItem;
 import org.schabi.newpipe.database.playlist.PlaylistMetadataEntry;
+import org.schabi.newpipe.database.playlist.PlaylistProgressEntry;
 import org.schabi.newpipe.database.playlist.model.PlaylistRemoteEntity;
 import org.schabi.newpipe.databinding.DialogEditTextBinding;
 import org.schabi.newpipe.error.ErrorInfo;
@@ -45,12 +47,16 @@ import org.schabi.newpipe.util.debounce.DebounceSavable;
 import org.schabi.newpipe.util.debounce.DebounceSaver;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.Supplier;
 
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
 import io.reactivex.rxjava3.disposables.CompositeDisposable;
 import io.reactivex.rxjava3.disposables.Disposable;
+import io.reactivex.rxjava3.schedulers.Schedulers;
 
 public final class BookmarkFragment extends BaseLocalListFragment<List<PlaylistLocalItem>, Void>
         implements DebounceSavable {
@@ -73,6 +79,11 @@ public final class BookmarkFragment extends BaseLocalListFragment<List<PlaylistL
     private DebounceSaver debounceSaver;
 
     private List<Pair<Long, LocalItem.LocalItemType>> deletedItems;
+
+    // Stats header
+    private View statsHeaderView;
+    private TextView learningStatsStreakText;
+    private TextView learningStatsSummaryText;
 
     ///////////////////////////////////////////////////////////////////////////
     // Fragment LifeCycle - Creation
@@ -124,6 +135,22 @@ public final class BookmarkFragment extends BaseLocalListFragment<List<PlaylistL
         super.initViews(rootView, savedInstanceState);
 
         itemListAdapter.setUseItemHandle(true);
+    }
+
+    @Override
+    protected Supplier<View> getListHeaderSupplier() {
+        statsHeaderView = LayoutInflater.from(requireContext())
+                .inflate(R.layout.learning_stats_header, itemsList, false);
+        learningStatsStreakText = statsHeaderView.findViewById(R.id.learningStatsStreakText);
+        learningStatsSummaryText = statsHeaderView.findViewById(R.id.learningStatsSummaryText);
+
+        statsHeaderView.setOnClickListener(v -> {
+            if (getFM() != null) {
+                NavigationHelper.openLearningStatsFragment(getFM());
+            }
+        });
+
+        return () -> statsHeaderView;
     }
 
     @Override
@@ -190,6 +217,107 @@ public final class BookmarkFragment extends BaseLocalListFragment<List<PlaylistL
                 .onBackpressureLatest()
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(getPlaylistsSubscriber());
+
+        loadPlaylistProgress();
+    }
+
+    private void loadPlaylistProgress() {
+        final AppDatabase db = NewPipeDatabase.getInstance(requireContext());
+
+        // Load playlist progress counts
+        disposables.add(
+            db.playlistStreamDAO().getPlaylistProgressCounts()
+                .firstElement()
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(
+                    entries -> {
+                        final Map<Long, int[]> map = new HashMap<>();
+                        int inProgress = 0;
+                        int completed = 0;
+                        for (final PlaylistProgressEntry e : entries) {
+                            map.put(e.getPlaylistId(),
+                                    new int[]{e.getWatchedCount(), e.getTotalCount()});
+                            if (e.getWatchedCount() > 0
+                                    && e.getWatchedCount() < e.getTotalCount()) {
+                                inProgress++;
+                            } else if (e.getTotalCount() > 0
+                                    && e.getWatchedCount() >= e.getTotalCount()) {
+                                completed++;
+                            }
+                        }
+                        LocalBookmarkPlaylistItemHolder.sPlaylistProgressMap = map;
+                        updateStatsHeaderSummary(inProgress, completed);
+                        if (itemListAdapter != null) {
+                            itemListAdapter.notifyDataSetChanged();
+                        }
+                    },
+                    throwable -> Log.e(TAG, "Error loading playlist progress", throwable)
+                )
+        );
+
+        // Load streak from history
+        disposables.add(
+            db.streamHistoryDAO().getDistinctWatchDates()
+                .firstElement()
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(
+                    dates -> {
+                        final int streak = computeStreak(dates);
+                        if (learningStatsStreakText != null) {
+                            learningStatsStreakText.setText(
+                                    getString(R.string.learning_streak_days, streak));
+                        }
+                    },
+                    throwable -> Log.e(TAG, "Error loading streak", throwable)
+                )
+        );
+    }
+
+    private int computeStreak(final java.util.List<String> sortedDates) {
+        if (sortedDates == null || sortedDates.isEmpty()) {
+            return 0;
+        }
+        final java.util.List<java.time.LocalDate> dates = new java.util.ArrayList<>();
+        for (final String s : sortedDates) {
+            try {
+                dates.add(java.time.LocalDate.parse(s));
+            } catch (final Exception ignored) {
+                // skip unparseable
+            }
+        }
+        if (dates.isEmpty()) {
+            return 0;
+        }
+        final java.time.LocalDate today = java.time.LocalDate.now();
+        final java.time.LocalDate yesterday = today.minusDays(1);
+        dates.sort(java.util.Collections.reverseOrder());
+        final java.time.LocalDate latest = dates.get(0);
+        if (!latest.equals(today) && !latest.equals(yesterday)) {
+            return 0;
+        }
+        int streak = 1;
+        java.time.LocalDate expected = latest.minusDays(1);
+        for (int i = 1; i < dates.size(); i++) {
+            if (dates.get(i).equals(expected)) {
+                streak++;
+                expected = expected.minusDays(1);
+            } else {
+                break;
+            }
+        }
+        return streak;
+    }
+
+    private void updateStatsHeaderSummary(final int inProgress, final int completed) {
+        if (learningStatsStreakText == null || learningStatsSummaryText == null) {
+            return;
+        }
+        final String summary = getString(R.string.learning_stats_in_progress, inProgress)
+                + "  ·  "
+                + getString(R.string.learning_stats_completed, completed);
+        learningStatsSummaryText.setText(summary);
     }
 
     ///////////////////////////////////////////////////////////////////////////

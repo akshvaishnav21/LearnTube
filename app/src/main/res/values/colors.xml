@@ -4,7 +4,7 @@
     <color name="contrastColor">@color/black</color>
     <color name="defaultIconTint">@color/black</color>
 
-    <color name="ic_launcher_background">#CD201F</color>
+    <color name="ic_launcher_background">#095261</color>
 
     <!-- Material 3 Light Scheme (seed: #E53935) -->
     <color name="md_theme_light_primary">#BA1A1A</color>

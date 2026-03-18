@@ -85,4 +85,20 @@
         tools:ignore="RtlHardcoded"
         tools:text="Uploader really long lorem ipsum dolor sit amet consectetur" />
 
+    <ProgressBar
+        android:id="@+id/itemPlaylistProgress"
+        style="@android:style/Widget.ProgressBar.Horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="3dp"
+        android:layout_below="@+id/itemUploaderView"
+        android:layout_toLeftOf="@id/itemHandle"
+        android:layout_toRightOf="@+id/itemThumbnailView"
+        android:layout_marginTop="4dp"
+        android:max="100"
+        android:progress="0"
+        android:visibility="gone"
+        tools:ignore="RtlHardcoded"
+        tools:progress="60"
+        tools:visibility="visible" />
+
 </RelativeLayout>

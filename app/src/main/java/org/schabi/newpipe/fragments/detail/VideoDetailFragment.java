@@ -161,6 +161,7 @@ public final class VideoDetailFragment
     private static final String RELATED_TAB_TAG = "NEXT VIDEO";
     private static final String DESCRIPTION_TAB_TAG = "DESCRIPTION TAB";
     private static final String EMPTY_TAB_TAG = "EMPTY TAB";
+    private static final String NOTES_TAB_TAG = "NOTES TAB";
 
     // tabs
     private boolean showComments;
@@ -919,6 +920,11 @@ public final class VideoDetailFragment
             tabContentDescriptions.add(R.string.description_tab_description);
         }
 
+        // Notes tab — always shown
+        pageAdapter.addFragment(EmptyFragment.newInstance(false), NOTES_TAB_TAG);
+        tabIcons.add(R.drawable.ic_bookmark);
+        tabContentDescriptions.add(R.string.timestamp_notes_section_title);
+
         if (pageAdapter.getCount() == 0) {
             pageAdapter.addFragment(EmptyFragment.newInstance(true), EMPTY_TAB_TAG);
         }
@@ -966,6 +972,9 @@ public final class VideoDetailFragment
         if (showDescription) {
             pageAdapter.updateItem(DESCRIPTION_TAB_TAG, new DescriptionFragment(info));
         }
+
+        // Update notes tab with current stream info
+        pageAdapter.updateItem(NOTES_TAB_TAG, TimestampNotesFragment.getInstance(info));
 
         binding.viewPager.setVisibility(View.VISIBLE);
         // make sure the tab layout is visible

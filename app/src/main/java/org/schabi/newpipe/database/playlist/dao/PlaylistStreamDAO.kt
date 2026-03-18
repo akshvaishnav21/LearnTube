@@ -15,6 +15,7 @@ import io.reactivex.rxjava3.core.Flowable
 import org.schabi.newpipe.database.BasicDAO
 import org.schabi.newpipe.database.playlist.PlaylistDuplicatesEntry
 import org.schabi.newpipe.database.playlist.PlaylistMetadataEntry
+import org.schabi.newpipe.database.playlist.PlaylistProgressEntry
 import org.schabi.newpipe.database.playlist.PlaylistStreamEntry
 import org.schabi.newpipe.database.playlist.model.PlaylistEntity.Companion.DEFAULT_THUMBNAIL_ID
 import org.schabi.newpipe.database.playlist.model.PlaylistStreamEntity
@@ -137,4 +138,27 @@ interface PlaylistStreamDAO : BasicDAO<PlaylistStreamEntity> {
         """
     )
     fun getPlaylistDuplicatesMetadata(streamUrl: String): Flowable<MutableList<PlaylistDuplicatesEntry>>
+
+    /**
+     * Returns a map of playlistId -> (watchedCount, totalCount) for displaying progress bars.
+     * A video is "watched" when progress_time >= duration * 750 (3/4 of duration in ms).
+     */
+    @Query(
+        """
+        SELECT
+            playlist_stream_join.playlist_id AS playlistId,
+            COUNT(playlist_stream_join.stream_id) AS totalCount,
+            COALESCE(SUM(CASE
+                WHEN stream_state.progress_time IS NOT NULL
+                    AND streams.duration > 0
+                    AND stream_state.progress_time >= streams.duration * 750
+                THEN 1 ELSE 0
+            END), 0) AS watchedCount
+        FROM playlist_stream_join
+        INNER JOIN streams ON streams.uid = playlist_stream_join.stream_id
+        LEFT JOIN stream_state ON stream_state.stream_id = streams.uid
+        GROUP BY playlist_stream_join.playlist_id
+        """
+    )
+    fun getPlaylistProgressCounts(): Flowable<MutableList<PlaylistProgressEntry>>
 }

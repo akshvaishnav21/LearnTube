@@ -696,6 +696,33 @@
     <string name="remove_watched_popup_warning">Streams that have been watched before and after being added to the playlist will be removed.
 \nAre you sure\?</string>
     <string name="remove_watched_popup_partially_watched_streams">Remove partially watched streams</string>
+    <!-- Feature: Mark as watched/unwatched -->
+    <string name="mark_as_unwatched">Mark as unwatched</string>
+    <string name="mark_all_as_watched">Mark all as watched</string>
+    <string name="reset_all_progress">Reset all progress</string>
+    <string name="mark_all_watched_success">All videos marked as watched</string>
+    <string name="reset_all_progress_success">All progress reset</string>
+    <!-- Feature: Learning Paths Dashboard -->
+    <string name="playlist_progress_watched_format">%1$d / %2$d watched</string>
+    <string name="learning_stats_in_progress">%d in progress</string>
+    <string name="learning_stats_completed">%d completed</string>
+    <string name="learning_stats_hours_this_week">%.1f hours this week</string>
+    <string name="learning_stats_summary">%1$s · %2$s · %3$s</string>
+    <string name="open_learning_stats">Learning Stats</string>
+    <!-- Feature: Timestamp Notes -->
+    <string name="timestamp_note_button_description">Add note at current timestamp</string>
+    <string name="timestamp_note_hint">Enter your note…</string>
+    <string name="timestamp_note_dialog_title">Add timestamped note</string>
+    <string name="timestamp_notes_section_title">Notes</string>
+    <string name="timestamp_note_delete_confirm">Delete this note?</string>
+    <!-- Feature: Learning Streak -->
+    <string name="learning_streak_title">Learning Streak</string>
+    <string name="learning_streak_days">%d day streak</string>
+    <string name="learning_total_watch_time">Total watch time: %s</string>
+    <string name="learning_stats_fragment_title">Learning Statistics</string>
+    <string name="learning_streak_label">Current Streak</string>
+    <string name="learning_watch_time_label">Total Watch Time</string>
+    <string name="learning_videos_watched_label">Videos Watched</string>
     <string name="new_seek_duration_toast">Due to ExoPlayer constraints the seek duration was set to %d seconds</string>
     <!-- Time duration plurals -->
     <plurals name="seconds">
