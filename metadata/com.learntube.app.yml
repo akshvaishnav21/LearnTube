@@ -18,7 +18,7 @@ Builds:
     gradle:
       - yes
 
-AutoUpdateMode: Version
+AutoUpdateMode: None
 UpdateCheckMode: Tags ^v[\d.]+$
 CurrentVersion: 0.28.4
 CurrentVersionCode: 1009
