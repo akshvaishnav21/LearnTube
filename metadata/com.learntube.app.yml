@@ -8,10 +8,10 @@ IssueTracker: https://github.com/akshvaishnav21/LearnTube/issues
 AutoName: LearnTube
 
 RepoType: git
-Repo: https://github.com/akshvaishnav21/LearnTube
+Repo: https://github.com/akshvaishnav21/LearnTube.git
 
 Builds:
-  - versionName: '0.28.4'
+  - versionName: 0.28.4
     versionCode: 1009
     commit: v0.28.4
     subdir: app
@@ -19,6 +19,6 @@ Builds:
       - yes
 
 AutoUpdateMode: Version
-UpdateCheckMode: Tags ^v([\d.]+)$
+UpdateCheckMode: Tags ^v[\d.]+$
 CurrentVersion: 0.28.4
 CurrentVersionCode: 1009
