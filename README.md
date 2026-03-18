@@ -1,4 +1,3 @@
-<p align="center"><img src="assets/new_pipe_icon_5.png" width="150"></p>
 <h2 align="center"><b>LearnTube</b></h2>
 <h4 align="center">A learning-focused YouTube front-end for Android, built on NewPipe.</h4>
 
