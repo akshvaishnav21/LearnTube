@@ -249,14 +249,6 @@ open class App :
                 ).setName(getString(R.string.notification_channel_name))
                 .setDescription(getString(R.string.notification_channel_description))
                 .build()
-        val appUpdateChannel =
-            NotificationChannelCompat
-                .Builder(
-                    getString(R.string.app_update_notification_channel_id),
-                    NotificationManagerCompat.IMPORTANCE_LOW
-                ).setName(getString(R.string.app_update_notification_channel_name))
-                .setDescription(getString(R.string.app_update_notification_channel_description))
-                .build()
         val hashChannel =
             NotificationChannelCompat
                 .Builder(
@@ -282,7 +274,7 @@ open class App :
                 .setDescription(getString(R.string.streams_notification_channel_description))
                 .build()
 
-        val channels = listOf(mainChannel, appUpdateChannel, hashChannel, errorReportChannel, newStreamChannel)
+        val channels = listOf(mainChannel, hashChannel, errorReportChannel, newStreamChannel)
 
         NotificationManagerCompat.from(this).createNotificationChannelsCompat(channels)
     }

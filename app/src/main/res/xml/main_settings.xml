@@ -41,13 +41,6 @@
         app:iconSpaceReserved="false" />
 
     <PreferenceScreen
-        android:fragment="org.schabi.newpipe.settings.UpdateSettingsFragment"
-        android:icon="@drawable/ic_cloud_download"
-        android:key="update_pref_screen_key"
-        android:title="@string/settings_category_updates_title"
-        app:iconSpaceReserved="false" />
-
-    <PreferenceScreen
         android:fragment="org.schabi.newpipe.settings.BackupRestoreSettingsFragment"
         android:icon="@drawable/ic_settings_backup_restore"
         android:title="@string/settings_category_backup_restore_title"
