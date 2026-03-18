@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 12,
-    "identityHash": "83c608106c4be83b72d4e81b4f1a2382",
+    "identityHash": "666e962c4ca2cbc23ace4e5f7f9a332f",
     "entities": [
       {
         "tableName": "subscriptions",
@@ -761,6 +761,17 @@
             "uid"
           ]
         },
+        "indices": [
+          {
+            "name": "index_stream_timestamp_notes_stream_uid",
+            "unique": false,
+            "columnNames": [
+              "stream_uid"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_stream_timestamp_notes_stream_uid` ON `${TABLE_NAME}` (`stream_uid`)"
+          }
+        ],
         "foreignKeys": [
           {
             "table": "streams",
@@ -778,7 +789,7 @@
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '83c608106c4be83b72d4e81b4f1a2382')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '666e962c4ca2cbc23ace4e5f7f9a332f')"
     ]
   }
 }

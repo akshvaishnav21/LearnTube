@@ -78,7 +78,7 @@ abstract class StreamHistoryDAO : BasicDAO<StreamHistoryEntity> {
      */
     @Query(
         """
-        SELECT DISTINCT date(access_date) AS watch_date
+        SELECT DISTINCT date(access_date / 1000, 'unixepoch', 'localtime') AS watch_date
         FROM stream_history
         ORDER BY watch_date ASC
         """
@@ -97,7 +97,7 @@ abstract class StreamHistoryDAO : BasicDAO<StreamHistoryEntity> {
         SELECT COALESCE(SUM(streams.duration), 0) FROM streams
         INNER JOIN (
             SELECT DISTINCT stream_id FROM stream_history
-            WHERE date(access_date) >= date('now', '-6 days')
+            WHERE date(access_date / 1000, 'unixepoch', 'localtime') >= date('now', '-6 days')
         ) h ON uid = h.stream_id
         """
     )

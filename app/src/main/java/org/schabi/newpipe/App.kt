@@ -217,7 +217,7 @@ open class App :
                     Thread
                         .currentThread()
                         .uncaughtExceptionHandler
-                        .uncaughtException(Thread.currentThread(), throwable)
+                        ?.uncaughtException(Thread.currentThread(), throwable)
                 }
             }
         )
