@@ -19,6 +19,6 @@ Builds:
       - yes
 
 AutoUpdateMode: Version
-UpdateCheckMode: Tags
-CurrentVersion: '0.28.4'
+UpdateCheckMode: Tags ^v([\d.]+)$
+CurrentVersion: 0.28.4
 CurrentVersionCode: 1009
