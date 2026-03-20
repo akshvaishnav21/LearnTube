@@ -20,14 +20,9 @@ val gitWorkingBranch = providers.exec {
     commandLine("git", "rev-parse", "--abbrev-ref", "HEAD")
 }.standardOutput.asText.map { it.trim() }
 
-java {
-    toolchain {
-        languageVersion = JavaLanguageVersion.of(17)
-    }
-}
-
 kotlin {
     compilerOptions {
+        jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17)
         // TODO: Drop annotation default target when it is stable
         freeCompilerArgs.addAll(
             "-Xannotation-default-target=param-property"
@@ -94,6 +89,8 @@ configure<ApplicationExtension> {
     }
 
     compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
         // Flag to enable support for the new language APIs
         isCoreLibraryDesugaringEnabled = true
         encoding = "utf-8"
