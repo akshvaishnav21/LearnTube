@@ -1,1 +1,1 @@
-A learning-focused YouTube client with progress tracking and notes, built on NewPipe.
+A learning-focused YouTube client with progress tracking and notes.
